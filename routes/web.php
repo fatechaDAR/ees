@@ -11,7 +11,7 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-/* HALAMAN LOGIN (sementara dummy) */
+/*Login*/
 Route::get('/login', function () {
-    return "Halaman Login (Belum dibuat)";
+    return view('auth.login');
 })->name('login');
