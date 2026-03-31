@@ -93,6 +93,55 @@
             .password-grid { grid-template-columns: 1fr; gap: 0; }
             .card-title { font-size: 1.5rem; }
         }
+        /* =========================================
+   REFINEMENT & CONSISTENCY IMPROVEMENTS
+   ========================================= */
+
+/* Label Row untuk Password + Forgot Link */
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.checkbox-group label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin: 0;
+    user-select: none;
+}
+
+/* Card Footer dengan Border */
+.card-footer {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+    text-align: center;
+}
+
+/* Perbaikan Placeholder dan Typography */
+.form-input::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* Small improvement for better UX */
+.toggle-password-btn {
+    color: var(--text-placeholder);
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary-color);
+}
     </style>
 </head>
 <body>

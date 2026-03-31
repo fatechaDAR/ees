@@ -11,35 +11,43 @@
             <p class="card-subtitle">Silakan isi formulir di bawah ini untuk bergabung dengan Sistem Evaluasi Kinerja Panitia Event Kampus.</p>
         </div>
 
-        <!-- Form action mengarah ke route 'register' (POST) -->
         <form action="{{ route('register') }}" method="POST" class="register-form">
-            <!-- Wajib ada untuk Laravel Form -->
             @csrf
             
+            <!-- Input Nama Lengkap -->
             <div class="form-group">
                 <label for="name" class="form-label">Nama Lengkap</label>
                 <div class="input-wrapper">
                     <span class="input-icon left-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </span>
-                    <!-- value="{{ old('name') }}" agar ketikan user tidak hilang saat gagal validasi -->
-                    <input type="text" id="name" name="name" class="form-input" value="{{ old('name') }}" placeholder="Masukkan nama lengkap Anda" required autofocus>
+                    <input type="text" id="name" name="name" class="form-input" 
+                           value="{{ old('name') }}" 
+                           placeholder="Masukkan nama lengkap Anda" 
+                           autocomplete="name" required autofocus>
                 </div>
             </div>
 
+            <!-- Input Alamat Email -->
             <div class="form-group">
                 <label for="email" class="form-label">Alamat Email</label>
                 <div class="input-wrapper">
                     <span class="input-icon left-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     </span>
-                    <input type="email" id="email" name="email" class="form-input" value="{{ old('email') }}" placeholder="contoh@kampus.ac.id" required>
+                    <input type="email" id="email" name="email" class="form-input" 
+                           value="{{ old('email') }}" 
+                           placeholder="contoh@kampus.ac.id" 
+                           autocomplete="email" required>
                 </div>
             </div>
 
+            <!-- Input Pilihan Peran (Role) -->
             <div class="form-group">
                 <label class="form-label">Pilih Peran (Role)</label>
+                
                 <div class="role-selection-grid">
+                    <!-- Opsi Panitia -->
                     <label class="role-option">
                         <input type="radio" name="role" value="panitia" class="sr-only" {{ old('role', 'panitia') == 'panitia' ? 'checked' : '' }}>
                         <div class="role-card-ui">
@@ -50,6 +58,7 @@
                         </div>
                     </label>
 
+                    <!-- Opsi Evaluator -->
                     <label class="role-option">
                         <input type="radio" name="role" value="evaluator" class="sr-only" {{ old('role') == 'evaluator' ? 'checked' : '' }}>
                         <div class="role-card-ui">
@@ -62,42 +71,52 @@
                 </div>
             </div>
 
+            <!-- Input Kata Sandi & Konfirmasi (Grid 2 Kolom) -->
             <div class="password-grid">
+                
+                <!-- Kata Sandi -->
                 <div class="form-group">
                     <label for="password" class="form-label">Kata Sandi</label>
                     <div class="input-wrapper">
                         <span class="input-icon left-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </span>
-                        <input type="password" id="password" name="password" class="form-input" placeholder="Minimal 8 karakter" required>
-                        <button type="button" class="input-icon right-icon toggle-password-btn" aria-label="Tampilkan password">
+                        <input type="password" id="password" name="password" class="form-input" 
+                               placeholder="Minimal 8 karakter" 
+                               autocomplete="new-password" required>
+                        <!-- Tombol toggle mata -->
+                        <button type="button" class="input-icon right-icon toggle-password-btn" aria-label="Tampilkan kata sandi">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
                 </div>
 
+                <!-- Konfirmasi Sandi -->
                 <div class="form-group">
                     <label for="password_confirmation" class="form-label">Konfirmasi Sandi</label>
                     <div class="input-wrapper">
                         <span class="input-icon left-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </span>
-                        <!-- Perhatikan name attribut ini penting untuk validasi confirmed laravel -->
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi sandi" required>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" 
+                               placeholder="Ulangi kata sandi" 
+                               autocomplete="new-password" required>
                     </div>
                 </div>
+
             </div>
 
+            <!-- Tombol Submit -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary btn-block">Daftar Sekarang</button>
             </div>
         </form>
 
+        <!-- Link Navigasi ke Login -->
         <div class="card-footer">
             <p class="login-prompt">
                 Sudah memiliki akun? 
-                <!-- Helper route login -->
-                <a href="{{ route('login') }}" class="text-link-primary">Masuk di sini</a>
+                <a href="/login" class="text-link-primary">Masuk di sini</a>
             </p>
         </div>
 
