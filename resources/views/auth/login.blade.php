@@ -13,6 +13,16 @@
 
         <form action="{{ route('login') }}" method="POST" class="register-form">
             @csrf
+
+            @if($errors->any())
+            <div style="background-color: #fee2e2; color: #dc2626; border: 1px solid #f87171; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                <ul style="margin-left: 20px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             
             <!-- Input Email -->
             <div class="form-group">
