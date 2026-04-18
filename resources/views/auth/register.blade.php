@@ -58,14 +58,14 @@
                         </div>
                     </label>
 
-                    <!-- Opsi Evaluator -->
+                    <!-- Opsi Admin -->
                     <label class="role-option">
-                        <input type="radio" name="role" value="evaluator" class="sr-only" {{ old('role') == 'evaluator' ? 'checked' : '' }}>
+                        <input type="radio" name="role" value="admin" class="sr-only" {{ old('role') == 'admin' ? 'checked' : '' }}>
                         <div class="role-card-ui">
                             <span class="role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
                             </span>
-                            <span class="role-text">Evaluator</span>
+                            <span class="role-text">Admin</span>
                         </div>
                     </label>
                 </div>

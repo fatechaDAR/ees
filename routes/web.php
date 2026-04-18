@@ -15,3 +15,8 @@ Route::get('/register', function () {
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+
+/*Dashboard*/
+Route::get('/dashboard', function () {
+    return view('dashboard.index');
+})->name('dashboard');
