@@ -28,6 +28,35 @@
                 </div>
             </div>
 
+            <!-- Input Pilihan Peran (Role) -->
+            <div class="form-group">
+                <label class="form-label">Pilih Peran (Role)</label>
+                
+                <div class="role-selection-grid">
+                    <!-- Opsi Panitia -->
+                    <label class="role-option">
+                        <input type="radio" name="role" value="panitia" class="sr-only" {{ old('role', 'panitia') == 'panitia' ? 'checked' : '' }}>
+                        <div class="role-card-ui">
+                            <span class="role-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </span>
+                            <span class="role-text">Panitia</span>
+                        </div>
+                    </label>
+
+                    <!-- Opsi Admin -->
+                    <label class="role-option">
+                        <input type="radio" name="role" value="admin" class="sr-only" {{ old('role') == 'admin' ? 'checked' : '' }}>
+                        <div class="role-card-ui">
+                            <span class="role-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
+                            </span>
+                            <span class="role-text">Admin</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <!-- Input Password -->
             <div class="form-group">
                 <div class="label-row">

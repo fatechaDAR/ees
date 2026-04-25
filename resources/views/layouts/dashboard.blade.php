@@ -212,12 +212,11 @@
         <aside class="sidebar">
             
             <div class="sidebar__brand">
-                Evalytics(belom selesai)
+                Evalytics
             </div>
 
             <nav class="sidebar__nav">
-                <a href="#" class="sidebar__link sidebar__link--active">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <a href="/dashboard" class="sidebar__link {{ request()->is('dashboard') ? 'sidebar__link--active' : '' }}">                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
                         <rect x="14" y="14" width="7" height="7"></rect>
@@ -225,7 +224,7 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/manajemen-event" class="sidebar__link {{ request()->is('manajemen-event') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2"></rect>
@@ -238,7 +237,7 @@
                     </svg>
                     Manajemen Event
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/manajemen-divisi" class="sidebar__link {{ request()->is('manajemen-divisi') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
@@ -247,7 +246,7 @@
                     </svg>
                     Manajemen Divisi
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/manajemen-panitia" class="sidebar__link {{ request()->is('manajemen-panitia') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="16" rx="2"></rect>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -255,7 +254,7 @@
                     </svg>
                     Manajemen Panitia
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/manajemen-user" class="sidebar__link {{ request()->is('manajemen-user') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="8" cy="7" r="4"></circle>
@@ -264,13 +263,13 @@
                     </svg>
                     Manajemen User
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/monitoring-evaluasi" class="sidebar__link {{ request()->is('monitoring-evaluasi') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
                     Monitoring Evaluasi
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/hasil-evaluasi" class="sidebar__link {{ request()->is('hasil-evaluasi') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="8" y1="17" x2="8" y2="10"></line>
@@ -279,7 +278,7 @@
                     </svg>
                     Hasil Evaluasi
                 </a>
-                 <a href="#" class="sidebar__link">
+                 <a href="/deteksi-anomali" class="sidebar__link {{ request()->is('deteksi-anomali') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                         <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -287,9 +286,10 @@
                     </svg>
                     Deteksi Anomali
                 </a>
-                <a href="#" class="sidebar__link">
+                <a href="/ranking" class="sidebar__link {{ request()->is('ranking') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     Ranking
+                </a>
                 </nav>
 
             <div class="sidebar__footer">
