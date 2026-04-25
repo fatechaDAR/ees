@@ -600,9 +600,7 @@
                 </div>
 
             </div>
-        </div> <footer class="dashboard-footer">
-            &copy; 2026 Sistem Evaluasi Panitia Event Kampus
-        </footer>
+        
 
     </div>
 
@@ -707,118 +705,11 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Daftar Evaluasi Terbaru</h3>
-        </div>
-        
-        <div style="overflow-x: auto;">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Event Evaluasi</th>
-                        <th>Tanggal Dibuat</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Evaluasi Kinerja Dosen Semester Ganjil</strong></td>
-                        <td>12 Apr 2026</td>
-                        <td><span class="badge badge--success">Selesai</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                    
-                    <tr>
-                        <td>2</td>
-                        <td><strong>Evaluasi Layanan Fasilitas Kampus</strong></td>
-                        <td>15 Apr 2026</td>
-                        <td><span class="badge badge--warning">Berjalan</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        </div> <footer class="dashboard-footer">
+            &copy; 2026 Sistem Evaluasi Panitia Event Kampus
+        </footer>
 
-
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Daftar Evaluasi Terbaru</h3>
-        </div>
-        
-        <div style="overflow-x: auto;">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Event Evaluasi</th>
-                        <th>Tanggal Dibuat</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Evaluasi Kinerja Dosen Semester Ganjil</strong></td>
-                        <td>12 Apr 2026</td>
-                        <td><span class="badge badge--success">Selesai</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                    
-                    <tr>
-                        <td>2</td>
-                        <td><strong>Evaluasi Layanan Fasilitas Kampus</strong></td>
-                        <td>15 Apr 2026</td>
-                        <td><span class="badge badge--warning">Berjalan</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Daftar Evaluasi Terbaru</h3>
-        </div>
-        
-        <div style="overflow-x: auto;">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Event Evaluasi</th>
-                        <th>Tanggal Dibuat</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Evaluasi Kinerja Dosen Semester Ganjil</strong></td>
-                        <td>12 Apr 2026</td>
-                        <td><span class="badge badge--success">Selesai</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                    
-                    <tr>
-                        <td>2</td>
-                        <td><strong>Evaluasi Layanan Fasilitas Kampus</strong></td>
-                        <td>15 Apr 2026</td>
-                        <td><span class="badge badge--warning">Berjalan</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
     @endsection
