@@ -23,10 +23,20 @@ Route::post('/login', [AuthController::class, 'authenticate']); // Menerima data
 /* LOGOUT */
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-/* DASHBOARD */
+/* DASHBOARD UTAMA (Saat login suskes) */
 Route::get('/dashboard', function () {
     return view('dashboard.index');
 })->middleware('auth')->name('dashboard');
+
+/* DASHBOARD PANITIA */
+Route::get('/dashboard-panitia', function () {
+    return view('dashboard_panitia.index');
+})->middleware('auth')->name('dashboard.panitia');
+
+/* DASHBOARD ADMIN */
+Route::get('/dashboard-admin', function () {
+    return view('dashboard.index');
+})->middleware('auth')->name('dashboard.admin');
 
 /*Manajemen Event*/
 Route::get('/manajemen-event', function () {
