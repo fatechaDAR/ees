@@ -28,10 +28,10 @@
                 </div>
             </div>
 
+        <div class="password-grid">
 
-            <div class="password-grid">
-                <!-- Kata Sandi -->
-                <div class="form-group">
+                <!-- Kata Sandi (FULL) -->
+                <div class="form-group full-width">
                     <label for="password" class="form-label">Kata Sandi</label>
                     <div class="input-wrapper">
                         <span class="input-icon left-icon">
@@ -43,9 +43,8 @@
                         </span>
 
                         <input type="password" id="password" name="password" class="form-input"
-                            placeholder="Minimal 8 karakter" autocomplete="new-password" required>
+                            placeholder="Minimal 8 karakter" autocomplete="current-password" required>
 
-                        <!-- Tombol toggle mata -->
                         <button type="button"
                             class="input-icon right-icon toggle-password-btn"
                             data-target="password"
@@ -59,25 +58,27 @@
                     </div>
                 </div>
 
+                <!-- Remember me (DI BAWAH, FULL) -->
+                <div class="form-group checkbox-group full-width">
+                    <input type="checkbox" name="remember" id="remember">
+                    <label for="remember">Ingat udah saya</label>
+                </div>
 
-            <!-- Checkbox Remember Me -->
-            <div class="form-group checkbox-group">
-                <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                <label for="remember">Ingat saya</label>
-            </div>
+                <!-- Tombol Masuk (FULL) -->
+                <div class="form-actions full-width">
+                    <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                </div>
 
-            <!-- Tombol Login -->
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                <!-- Footer (DI BAWAH, FULL) -->
+                <div class="card-footer full-width">
+                    <p class="login-prompt">
+                        Belum memiliki akun?
+                        <a href="/register" class="text-link-primary">Daftar Sekarang</a>
+                    </p>
+                </div>
+
             </div>
         </form>
-
-        <div class="card-footer">
-            <p class="login-prompt">
-                Belum memiliki akun? 
-                <a href="/register" class="text-link-primary">Daftar Sekarang</a>
-            </p>
-        </div>
 
     </div> 
 </main>

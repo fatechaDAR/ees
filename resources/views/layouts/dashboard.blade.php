@@ -203,6 +203,7 @@
         .content-area::-webkit-scrollbar-track { background: transparent; }
         .content-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         .content-area::-webkit-scrollbar-thumb:hover { background: var(--text-placeholder); }
+
     </style>
 </head>
 <body>

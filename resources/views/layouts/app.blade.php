@@ -142,6 +142,25 @@
 .toggle-password-btn:hover {
     color: var(--primary-color);
 }
+
+/*2 grid*/
+/* item yang harus full 2 kolom */
+.password-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+/* checkbox biar rapi */
+.checkbox-group{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* tombol full */
+.btn-block{
+  width:100%;
+}
+
     </style>
 </head>
 
