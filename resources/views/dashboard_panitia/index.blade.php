@@ -1,8 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Dashboard Panitia')
 
-@section('page_title', 'Dashboard Admin')
+@section('page_title', 'Dashboard Panitia')
 
 @section('content')
     <style>

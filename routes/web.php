@@ -14,8 +14,13 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-/*Dashboard*/
-Route::get('/dashboard', function () {
+/*Dashboard Panitia*/
+Route::get('/dashboard panitia', function () {
+    return view('dashboard_panitia.index');
+})->name('dashboard.panitia');
+
+/*Dashboard Admin*/
+Route::get('/dashboard admin', function () {
     return view('dashboard.index');
 })->name('dashboard');
 
