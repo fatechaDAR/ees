@@ -2,27 +2,41 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/register');
+use App\Http\Controllers\AuthController;
+
+Route::get('/', function () {
+    return redirect('/login');
+});
 
 /* HALAMAN REGISTER */
 Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
+Route::post('/register', [AuthController::class, 'store']); // Menerima data pendaftaran
 
-/*Login*/
+/* HALAMAN LOGIN */
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+Route::post('/login', [AuthController::class, 'authenticate']); // Menerima data login
 
-/*Dashboard Panitia*/
-Route::get('/dashboard panitia', function () {
-    return view('dashboard_panitia.index');
-})->name('dashboard.panitia');
+/* LOGOUT */
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-/*Dashboard Admin*/
-Route::get('/dashboard admin', function () {
+/* DASHBOARD UTAMA (Saat login suskes) */
+Route::get('/dashboard', function () {
     return view('dashboard.index');
-})->name('dashboard');
+})->middleware('auth')->name('dashboard');
+
+/* DASHBOARD PANITIA */
+Route::get('/dashboard-panitia', function () {
+    return view('dashboard_panitia.index');
+})->middleware('auth')->name('dashboard.panitia');
+
+/* DASHBOARD ADMIN */
+Route::get('/dashboard-admin', function () {
+    return view('dashboard.index');
+})->middleware('auth')->name('dashboard.admin');
 
 /*Manajemen Event*/
 Route::get('/manajemen-event', function () {
