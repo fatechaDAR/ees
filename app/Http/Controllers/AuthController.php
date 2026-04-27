@@ -21,7 +21,16 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            // Setelah berhasil login, arahkan ke dashboard
+            
+            // Cek role pengguna dan arahkan ke dashboard yang sesuai
+            $role = Auth::user()->role;
+            if ($role === 'panitia') {
+                return redirect()->intended('dashboard-panitia');
+            } elseif ($role === 'admin') {
+                return redirect()->intended('dashboard-admin');
+            }
+
+            // Default fallback
             return redirect()->intended('dashboard');
         }
 
