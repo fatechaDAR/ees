@@ -36,8 +36,15 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role' => ['required', 'in:panitia,evaluator'],
+            'email' => [
+                'required', 'string', 'email', 'max:255', 'unique:users',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->role === 'panitia' && !str_ends_with($value, '@mhs.unesa.ac.id')) {
+                        $fail('Untuk role Panitia, Anda wajib menggunakan email mahasiswa (berakhiran @mhs.unesa.ac.id).');
+                    }
+                },
+            ],
+            'role' => ['required', 'in:panitia,admin,evaluator'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -48,9 +55,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        Auth::login($user);
+        // Auth::login($user); // Dihapus atau dikomentari agar tidak otomatis login
 
-        return redirect('dashboard');
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
     // Fungsi Logout

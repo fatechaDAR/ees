@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->foreignId('evaluator_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('evaluatee_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('evaluatee_id')->constrained('committee_members')->onDelete('cascade');
             $table->decimal('final_score', 8, 2)->nullable();
             $table->text('feedback')->nullable();
             $table->timestamps();

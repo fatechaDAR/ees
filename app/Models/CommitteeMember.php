@@ -17,4 +17,9 @@ class CommitteeMember extends Model
     {
         return $this->belongsTo(Division::class);
     }
+
+    public function evaluationsAsEvaluatee()
+    {
+        return $this->hasMany(Evaluation::class, 'evaluatee_id');
+    }
 }

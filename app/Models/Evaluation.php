@@ -20,7 +20,7 @@ class Evaluation extends Model
 
     public function evaluatee()
     {
-        return $this->belongsTo(User::class, 'evaluatee_id');
+        return $this->belongsTo(CommitteeMember::class, 'evaluatee_id');
     }
 
     public function details()
