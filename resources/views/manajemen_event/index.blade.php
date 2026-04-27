@@ -13,6 +13,66 @@
             padding-bottom: 32px;
         }
 
+        .stat-card {
+            background-color: var(--bg-white);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px); /* Efek melayang saat di-hover */
+        }
+
+        .stat-card__icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            /* Menggunakan warna utama dengan transparansi untuk background icon */
+            background-color: rgba(121, 33, 49, 0.1); 
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card__info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card__title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-card__value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .stat-card__trend {
+            font-size: 0.55rem; /* Ukuran teks lebih kecil */
+            color: #2563EB; /* Warna biru standar UI modern */
+            font-weight: 300;
+            margin-top: 3px; /* Memberi jarak sedikit dari angka besar */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+
         /* 1. HEADER HALAMAN */
         .page-header {
             display: flex;
@@ -158,16 +218,16 @@
         </header>
 
         <div class="metrics-grid">
-            <div class="metric-card">
+            <div class="stat-card">
                 <span class="metric-label">Jumlah Acara Yang Sedang Berlangsung</span>
                 <span class="metric-value">12</span>
                 <span class="metric-sub">+2 bulan ini</span>
             </div>
-            <div class="metric-card">
+            <div class="stat-card">
                 <span class="metric-label">Selesai</span>
                 <span class="metric-value">148</span>
             </div>
-            <div class="metric-card">
+            <div class="stat-card">
                 <span class="metric-label">Peringkat Rata-Rata</span>
                 <span class="metric-value">4.8</span>
             </div>
