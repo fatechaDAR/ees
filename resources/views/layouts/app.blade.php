@@ -144,6 +144,24 @@
 }
     </style>
 </head>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+
+      btn.setAttribute('aria-label', isHidden ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+    });
+  });
+});
+</script>
+
 <body>
 
     <!-- NAVBAR -->
