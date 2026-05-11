@@ -202,11 +202,11 @@
     <div class="dp-kpi-grid">
         <div class="dp-kpi-card">
             <div>
-                <div class="kpi-chip-up">↑ +0.2 dari kemarin</div>
+                <div class="kpi-chip-up">Performa Pribadi</div>
                 <div class="kpi-label" style="margin-bottom: 4px;">RATA-RATA NILAI</div>
             </div>
             <div class="kpi-val-row">
-                <span class="kpi-val">4.5</span>
+                <span class="kpi-val">{{ number_format($avgScore, 1) }}</span>
                 <span class="kpi-scale">/ 5.0</span>
             </div>
         </div>
@@ -214,8 +214,8 @@
         <div class="dp-kpi-card">
             <div class="kpi-label">JUMLAH EVALUASI</div>
             <div>
-                <div class="kpi-val">12</div>
-                <div class="kpi-subteks">panitia dinilai</div>
+                <div class="kpi-val">{{ $totalEvaluationsPerformed }}</div>
+                <div class="kpi-subteks">panitia telah Anda nilai</div>
             </div>
         </div>
 
@@ -223,10 +223,10 @@
             <div class="kpi-progress-wrapper">
                 <div class="progress-text">
                     <div class="kpi-label">PROGRESS PENILAIAN</div>
-                    <div class="kpi-subteks">3 dari 5 panitia terselesaikan</div>
+                    <div class="kpi-subteks">{{ $totalEvaluationsPerformed }} dari {{ $totalTasks }} tugas selesai</div>
                 </div>
-                <div class="progress-donut">
-                    <div class="progress-inner">80%</div>
+                <div class="progress-donut" style="background: conic-gradient(var(--primary-color) {{ $progress }}%, var(--border-light) 0);">
+                    <div class="progress-inner">{{ $progress }}%</div>
                 </div>
             </div>
         </div>
@@ -238,32 +238,23 @@
             <svg class="sec-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </div>
 
+        @foreach($kriteriaScores as $label => $score)
         <div class="bar-item">
-            <div class="bar-name">KERJA SAMA</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 84%;"></div></div>
-            <div class="bar-score">4.2</div>
+            <div class="bar-name">{{ $label }}</div>
+            <div class="bar-track"><div class="bar-fill" style="width: {{ ($score / 5) * 100 }}%;"></div></div>
+            <div class="bar-score">{{ number_format($score, 1) }}</div>
         </div>
-        <div class="bar-item">
-            <div class="bar-name">DISIPLIN</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 96%;"></div></div>
-            <div class="bar-score">4.8</div>
-        </div>
-        <div class="bar-item">
-            <div class="bar-name">TANGGUNG JAWAB</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 90%;"></div></div>
-            <div class="bar-score">4.5</div>
-        </div>
+        @endforeach
 
-        <div class="sec-footnote">Catatan: Skor ditampilkan berdasarkan performa rata-rata kumulatif seluruh panitia yang telah dinilai.</div>
+        <div class="sec-footnote">Catatan: Skor ditampilkan berdasarkan penilaian yang Anda terima dari rekan sejawat.</div>
     </div>
 
     <div class="dp-table-card">
         <div class="tb-header-area">
             <div>
-                <h2 class="tb-title">Tabel Evaluasi Panitia</h2>
-                <p class="tb-desc">Kelola dan input nilai kinerja individu panitia</p>
+                <h2 class="tb-title">Tugas Evaluasi Rekan</h2>
+                <p class="tb-desc">Daftar panitia yang harus Anda berikan penilaian kinerja</p>
             </div>
-            <button class="btn-filter-sm">Filter</button>
         </div>
 
         <div class="dp-list-wrapper">
@@ -275,58 +266,45 @@
                 <div>AKSI</div>
             </div>
 
+            @forelse($evaluationsToPerform as $eval)
             <div class="dp-list-row">
                 <div class="col-user">
-                    <div class="user-ava ava-am">AM</div>
+                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($eval->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($eval->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
                     <div>
-                        <div class="user-name">Arya Mahendra</div>
-                        <div class="user-id">ID: PAN-001</div>
+                        <div class="user-name">{{ $eval->evaluatee->user->name ?? 'N/A' }}</div>
+                        <div class="user-id">ID: PNT-{{ str_pad($eval->evaluatee->id ?? 0, 3, '0', STR_PAD_LEFT) }}</div>
                     </div>
                 </div>
-                <div class="col-div">Acara</div>
-                <div><span class="badge-status stat-done"><span class="dot"></span> Sudah Dinilai</span></div>
+                <div class="col-div">{{ $eval->evaluatee->division->name ?? 'Belum ada Divisi' }}</div>
+                <div>
+                    @if($eval->final_score)
+                        <span class="badge-status stat-done"><span class="dot"></span> Sudah Dinilai</span>
+                    @else
+                        <span class="badge-status stat-wait"><span class="dot"></span> Belum Dinilai</span>
+                    @endif
+                </div>
                 <div class="col-score">
-                    4.8 <svg class="icon-star" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    @if($eval->final_score)
+                        {{ number_format($eval->final_score, 1) }} <svg class="icon-star" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    @else
+                        <span style="color: var(--text-placeholder);">--</span>
+                    @endif
                 </div>
-                <div><button class="btn-eval">EVALUASI</button></div>
+                <div>
+                    <button class="btn-eval">{{ $eval->final_score ? 'LIHAT' : 'EVALUASI' }}</button>
+                </div>
             </div>
-
-            <div class="dp-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-sp">SP</div>
-                    <div>
-                        <div class="user-name">Siska Putri</div>
-                        <div class="user-id">ID: PAN-012</div>
-                    </div>
-                </div>
-                <div class="col-div">Humas</div>
-                <div><span class="badge-status stat-wait"><span class="dot"></span> Belum Dinilai</span></div>
-                <div class="col-score" style="color: var(--text-placeholder);">--</div>
-                <div><button class="btn-eval">EVALUASI</button></div>
-            </div>
-
-            <div class="dp-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-rk">RK</div>
-                    <div>
-                        <div class="user-name">Raka Kusuma</div>
-                        <div class="user-id">ID: PAN-005</div>
-                    </div>
-                </div>
-                <div class="col-div">Logistik</div>
-                <div><span class="badge-status stat-done"><span class="dot"></span> Sudah Dinilai</span></div>
-                <div class="col-score">
-                    4.2 <svg class="icon-star" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                </div>
-                <div><button class="btn-eval">EVALUASI</button></div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Tidak ada tugas evaluasi saat ini.</div>
+            @endforelse
         </div>
 
         <div class="dp-pagination">
-            <div class="page-info">Menampilkan 12 dari 15 Panitia</div>
+            <div class="page-info">Menampilkan {{ $evaluationsToPerform->firstItem() ?? 0 }} sampai {{ $evaluationsToPerform->lastItem() ?? 0 }} dari {{ $evaluationsToPerform->total() }} tugas</div>
             <div class="page-nav">
-                <button class="nav-btn">Sebelumnya</button>
-                <button class="nav-btn">Selanjutnya</button>
+                {{ $evaluationsToPerform->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>

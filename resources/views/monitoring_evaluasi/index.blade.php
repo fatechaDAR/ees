@@ -183,22 +183,25 @@
         <div class="me-kpi-left">
             <div class="kpi-mini">
                 <div class="kpi-mini-lbl">TOTAL ENTRIES</div>
-                <div class="kpi-mini-val">1,284</div>
+                <div class="kpi-mini-val">{{ number_format($totalEvaluations) }}</div>
             </div>
             <div class="kpi-mini">
                 <div class="kpi-mini-lbl">AVG SCORE</div>
-                <div class="kpi-mini-val">4.2</div>
+                <div class="kpi-mini-val">{{ number_format($avgScore, 1) }}</div>
             </div>
         </div>
         <div class="me-filters">
             <select class="filter-select">
-                <option>Dies Natalis 2024</option>
-                <option>Wisuda Angkatan 60</option>
+                <option value="">Semua Event</option>
+                @foreach($events as $event)
+                    <option value="{{ $event->id }}">{{ $event->name }}</option>
+                @endforeach
             </select>
             <select class="filter-select">
-                <option>Semua Divisi</option>
-                <option>Acara</option>
-                <option>Humas</option>
+                <option value="">Semua Divisi</option>
+                @foreach($divisions as $divisi)
+                    <option value="{{ $divisi->id }}">{{ $divisi->name }}</option>
+                @endforeach
             </select>
             <button class="btn-icon-filter" title="Filter Lanjutan">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
@@ -217,96 +220,36 @@
                 <div style="text-align: right;">AKSI</div>
             </div>
 
+            @forelse($evaluations as $eval)
             <div class="me-list-row">
                 <div class="col-user">
-                    <div class="user-ava" style="background-color: #3b82f6;">AD</div>
+                    <div class="user-ava" style="background-color: {{ '#' . substr(md5($eval->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($eval->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
                     <div>
-                        <div class="user-name">Arya Dimas</div>
-                        <div class="user-email">arya.dimas@student.univ.ac.id</div>
+                        <div class="user-name">{{ $eval->evaluatee->user->name ?? 'N/A' }}</div>
+                        <div class="user-email">{{ $eval->evaluatee->user->email ?? 'N/A' }}</div>
                     </div>
                 </div>
-                <div><span class="divisi-pill">ACARA</span></div>
-                <div class="col-evaluator">Dr. Hendra Wijaya</div>
-                <div><div class="score-badge score-high">5</div></div>
-                <div class="col-komentar">"Kontribusi luar biasa dalam koordinasi talent..."</div>
+                <div><span class="divisi-pill">{{ strtoupper($eval->evaluatee->division->name ?? 'N/A') }}</span></div>
+                <div class="col-evaluator">{{ $eval->evaluator->name ?? 'N/A' }}</div>
+                <div><div class="score-badge {{ ($eval->final_score >= 3.5) ? 'score-high' : 'score-low' }}">{{ number_format($eval->final_score, 0) }}</div></div>
+                <div class="col-komentar">"{{ Str::limit($eval->notes ?? 'Tidak ada komentar', 40) }}"</div>
                 <div class="col-actions">
                     <button class="btn-act" title="View Detail">
                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     </button>
                 </div>
             </div>
-
-            <div class="me-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #10b981;">BP</div>
-                    <div>
-                        <div class="user-name">Bambang Pamungkas</div>
-                        <div class="user-email">bambang.p@student.univ.ac.id</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">PERLENGKAPAN</span></div>
-                <div class="col-evaluator">Siska Maharani, M.T.</div>
-                <div><div class="score-badge score-high">4</div></div>
-                <div class="col-komentar">"Sangat proaktif dalam mempersiapkan layout..."</div>
-                <div class="col-actions">
-                    <button class="btn-act" title="View Detail">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <div class="me-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #8b5cf6;">CK</div>
-                    <div>
-                        <div class="user-name">Citra Kirana</div>
-                        <div class="user-email">citra.k@student.univ.ac.id</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">HUMAS</span></div>
-                <div class="col-evaluator">Dr. Hendra Wijaya</div>
-                <div><div class="score-badge score-low">2</div></div>
-                <div class="col-komentar">"Sering terlambat dalam merespon email mitra..."</div>
-                <div class="col-actions">
-                    <button class="btn-act btn-alert" title="Issue Detected">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </button>
-                    <button class="btn-act" title="View Detail">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <div class="me-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #f59e0b;">DA</div>
-                    <div>
-                        <div class="user-name">Doni Akbari</div>
-                        <div class="user-email">doni.a@student.univ.ac.id</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">KONSUMSI</span></div>
-                <div class="col-evaluator">Lutfi Hakim, M.Si.</div>
-                <div><div class="score-badge score-high">4</div></div>
-                <div class="col-komentar">"Manajemen vendor katering sangat tersusun rapi..."</div>
-                <div class="col-actions">
-                    <button class="btn-act" title="View Detail">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                </div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada data evaluasi.</div>
+            @endforelse
         </div>
 
         <div class="me-pagination">
-            <div class="page-info">Menampilkan 1-10 dari 1,284 evaluasi</div>
+            <div class="page-info">Menampilkan {{ $evaluations->firstItem() ?? 0 }}-{{ $evaluations->lastItem() ?? 0 }} dari {{ number_format($evaluations->total()) }} evaluasi</div>
             <div class="page-controls">
-                <button class="page-btn" title="Previous"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <span class="page-dots">...</span>
-                <button class="page-btn">128</button>
-                <button class="page-btn" title="Next"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                {{ $evaluations->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>
@@ -314,17 +257,17 @@
     <div class="insight-grid">
         <div class="insight-card insight-dark">
             <div class="ins-left">
-                <div class="ins-lbl">EVALUASI BELUM SELESAI</div>
-                <div class="ins-val">42</div>
+                <div class="ins-lbl">EVALUASI BELUM DINILAI</div>
+                <div class="ins-val">{{ $pendingEvaluations }}</div>
             </div>
             <button class="btn-detail">LIHAT DETAIL</button>
         </div>
         
         <div class="insight-card">
             <div class="ins-left">
-                <div class="ins-lbl">DIVISI TERBAIK</div>
-                <div class="ins-val" style="color: var(--primary-color);">Acara</div>
-                <div class="ins-sub">AVG SCORE 4.8</div>
+                <div class="ins-lbl">STATUS SISTEM</div>
+                <div class="ins-val" style="color: var(--primary-color);">Aktif</div>
+                <div class="ins-sub">DATABASE TERHUBUNG</div>
             </div>
             <div class="ins-icon-box">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
@@ -333,15 +276,14 @@
 
         <div class="insight-card">
             <div class="ins-left">
-                <div class="ins-lbl">ANOMALI TERDETEKSI</div>
-                <div class="ins-val">12</div>
-                <div class="ins-sub ins-sub-alert">
-                    <div class="dot-alert"></div>
-                    MEMBUTUHKAN TINJAUAN
+                <div class="ins-lbl">WAKTU SERVER</div>
+                <div class="ins-val">{{ now()->format('H:i') }}</div>
+                <div class="ins-sub">
+                    {{ now()->format('d M Y') }}
                 </div>
             </div>
-            <div class="ins-icon-box" style="background-color: #fef2f2; color: #ef4444;">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="ins-icon-box">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
         </div>
     </div>

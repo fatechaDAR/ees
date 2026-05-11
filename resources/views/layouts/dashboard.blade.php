@@ -326,11 +326,10 @@
 
                     <div class="user-profile">
                         <div class="user-profile__info">
-                            <!-- Placeholder nama (Nantinya bisa diganti Auth::user()->name) -->
-                            <span class="user-profile__name">Budi Darmawan</span>
-                            <span class="user-profile__role">Koordinator Divisi</span>
+                            <span class="user-profile__name">{{ Auth::user()->name }}</span>
+                            <span class="user-profile__role">{{ strtoupper(Auth::user()->role) }}</span>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Budi+Darmawan&background=792131&color=fff" alt="Avatar" class="user-profile__avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=792131&color=fff" alt="Avatar" class="user-profile__avatar">
                     </div>
                 </div>
             </header>
