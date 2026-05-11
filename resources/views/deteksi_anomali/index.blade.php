@@ -5,275 +5,329 @@
 
 @section('content')
 
-    <style>
-        .event-page-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            padding-bottom: 32px;
-        }
+<style>
+    /* =========================================
+       STYLE MAIN CONTENT: DETEKSI BIAS & ANOMALI
+       ========================================= */
+    .db-wrapper {
+        display: flex; flex-direction: column; gap: 24px;
+        animation: fadeIn 0.4s ease-out;
+    }
 
-        /* 1. HEADER HALAMAN */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        .header-text { max-width: 60%; }
-        .header-title { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
-        .header-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+    /* --- 1. HEADER & FILTER KONTROL --- */
+    .db-header {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        flex-wrap: wrap; gap: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;
+    }
+    .db-title-area { max-width: 600px; }
+    .db-title { font-size: 2rem; font-weight: 800; color: var(--text-dark); margin: 0 0 4px 0; letter-spacing: -0.5px; line-height: 1.1; }
+    .db-desc { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; line-height: 1.5; margin: 0; }
+    
+    .db-filters {
+        display: flex; align-items: center; gap: 16px; background-color: var(--bg-white);
+        padding: 12px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-light);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .filter-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .filter-select {
+        padding: 6px 32px 6px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-md);
+        font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-dark);
+        background-color: var(--bg-layout); appearance: none; cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
+        transition: 0.2s; outline: none;
+    }
+    .filter-select:focus { border-color: var(--primary-color); }
+    
+    /* Toggle Switch */
+    .toggle-container { display: flex; align-items: center; gap: 10px; border-left: 1px solid var(--border-light); padding-left: 16px; }
+    .toggle-label { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); cursor: pointer; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    input:checked + .slider { background-color: var(--primary-color); }
+    input:checked + .slider:before { transform: translateX(20px); }
 
-        .btn-pill-primary {
-            background-color: var(--primary-color);
-            color: var(--bg-white);
-            padding: 8px 20px 8px 10px; /* Padding kiri lebih kecil untuk mengakomodasi ikon */
-            border-radius: 50px; /* Bentuk Pill */
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(121, 33, 49, 0.2);
-        }
+    /* --- 2. KPI CARDS --- */
+    .db-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .db-kpi-card {
+        background-color: var(--bg-white); border-radius: var(--radius-lg); padding: 24px;
+        border: 1px solid var(--border-light); box-shadow: var(--card-shadow);
+        position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .db-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(121, 33, 49, 0.1); }
+    
+    /* KPI Maroon */
+    .db-kpi-card.maroon { background-color: var(--primary-color); color: var(--bg-white); border: none; }
+    .maroon .kpi-label { color: rgba(255,255,255,0.8); }
+    .maroon .kpi-val { color: var(--bg-white); }
+    .kpi-watermark { position: absolute; right: -10px; bottom: -20px; width: 100px; height: 100px; opacity: 0.1; color: var(--bg-white); pointer-events: none; }
+    
+    .kpi-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .kpi-val { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); line-height: 1; margin-bottom: 8px; }
+    
+    .kpi-sub-trend { font-size: 0.8rem; font-weight: 600; color: #fca5a5; } /* Light red for maroon card */
+    .kpi-chip-moderate { background-color: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+    .kpi-status-green { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: #10b981; }
 
-        .btn-pill-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+    /* --- 3. TABLE SECTION --- */
+    .db-table-card {
+        background-color: var(--bg-white); border-radius: var(--radius-lg);
+        box-shadow: var(--card-shadow); border: 1px solid var(--border-light); overflow: hidden;
+    }
+    .db-table-head { padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); }
+    .db-table-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0; }
+    .db-tools { display: flex; gap: 16px; color: var(--text-muted); }
+    .db-tools svg { width: 20px; height: 20px; cursor: pointer; transition: 0.2s; }
+    .db-tools svg:hover { color: var(--primary-color); }
 
-        .icon-circle {
-            background-color: rgba(255, 255, 255, 0.2);
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    /* List Layout Grid */
+    .db-list-wrapper { display: flex; flex-direction: column; }
+    .db-list-header {
+        display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1.2fr;
+        padding: 16px 24px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted);
+        background-color: var(--bg-layout); border-bottom: 1px solid var(--border-light);
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .db-list-row {
+        display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1.2fr; align-items: center;
+        padding: 16px 24px; gap: 16px; border-bottom: 1px solid var(--border-light); transition: all 0.3s ease;
+    }
+    .db-list-row:hover { background-color: rgba(121, 33, 49, 0.02); transform: translateX(8px); border-color: transparent; }
+    .db-list-row:last-child { border-bottom: none; }
 
-        /* 2. RINGKASAN METRIK (STAT CARDS) */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
+    /* Cell Styles */
+    .col-user { display: flex; align-items: center; gap: 12px; }
+    .user-ava {
+        width: 36px; height: 36px; border-radius: 50%; color: white; background-color: var(--text-placeholder);
+        display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem;
+    }
+    .user-name { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 6px;}
+    .icon-warning { color: #ef4444; width: 16px; height: 16px; }
 
-        .metric-card {
-            background-color: var(--bg-white);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-light);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+    .col-dept { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    
+    .col-num { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); }
+    
+    /* Selisih Styles */
+    .col-diff { font-size: 0.95rem; font-weight: 800; }
+    .diff-normal { color: var(--text-muted); }
+    .diff-alert { color: #ef4444; background-color: #fef2f2; padding: 4px 8px; border-radius: 6px; display: inline-block;} /* Merah menonjol */
 
-        .metric-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .metric-value { font-size: 2.5rem; font-weight: 800; color: var(--text-dark); line-height: 1; }
-        .metric-sub { font-size: 0.8rem; font-weight: 600; color: #16a34a; /* Warna hijau untuk pertumbuhan */ }
+    /* Badges Status */
+    .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; display: inline-block; letter-spacing: 0.5px; }
+    .status-anomali { background-color: #fef08a; color: #854d0e; } /* Kuning */
+    .status-normal { background-color: var(--bg-layout); color: var(--text-muted); border: 1px solid var(--border-light); } /* Abu-abu */
 
-        /* 3. SECTION DAFTAR EVENT (TABLE CARD) */
-        .table-card {
-            background-color: var(--bg-white);
-            border-radius: var(--radius-lg);
-            padding: 24px 0; /* Padding atas bawah saja, kiri kanan diatur per sel */
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-light);
-        }
+    /* Pagination */
+    .db-pagination {
+        padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+        border-top: 1px solid var(--border-light); background-color: var(--bg-white);
+    }
+    .page-info { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .page-controls { display: flex; gap: 6px; }
+    .page-btn {
+        width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
+        border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; color: var(--text-dark);
+        cursor: pointer; transition: 0.2s; border: 1px solid var(--border-light); background-color: var(--bg-white);
+    }
+    .page-btn:hover { background-color: rgba(121, 33, 49, 0.05); color: var(--primary-color); border-color: var(--primary-color);}
+    .page-btn.active { background-color: var(--primary-color); color: var(--bg-white); border-color: var(--primary-color); box-shadow: 0 4px 6px rgba(121, 33, 49, 0.2); }
 
-        .table-header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px 20px 24px;
-            border-bottom: 1px solid var(--border-light);
-        }
+    /* --- 6. INTERPRETASI DATA SECTION --- */
+    .db-interpretasi {
+        background-color: var(--bg-white); border-radius: var(--radius-lg); padding: 24px 32px;
+        border: 1px solid var(--border-light); border-top: 4px solid var(--primary-color);
+        box-shadow: var(--card-shadow); margin-top: 8px;
+    }
+    .int-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0 0 12px 0; }
+    .int-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 20px 0; max-width: 800px; }
+    .int-highlight { font-weight: 700; color: var(--text-dark); }
+    
+    .int-legend { display: flex; gap: 24px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .dot-legend { width: 12px; height: 12px; border-radius: 4px; }
+    .bg-yellow { background-color: #fcd34d; }
+    .bg-red { background-color: #fca5a5; }
 
-        .section-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); }
-        
-        .table-controls { display: flex; gap: 12px; }
-        .btn-icon-only {
-            background: none; border: 1px solid var(--border-light); border-radius: var(--radius-md);
-            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
-        }
-        .btn-icon-only:hover { background-color: var(--bg-layout); color: var(--text-dark); }
+    /* Responsif */
+    @media (max-width: 1024px) {
+        .db-list-header { display: none; }
+        .db-list-row { grid-template-columns: 1fr; gap: 10px; padding: 20px; border-bottom: 2px solid var(--bg-layout); }
+        .db-header { flex-direction: column; align-items: flex-start; }
+        .toggle-container { border-left: none; padding-left: 0; }
+    }
+</style>
 
-        /* 4. MAIN TABLE */
-        .event-table { width: 100%; border-collapse: collapse; }
-        
-        .event-table th {
-            text-align: left; padding: 16px 24px; font-size: 0.75rem; font-weight: 700;
-            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-light); background-color: #FAFAFA;
-        }
+<div class="db-wrapper">
 
-        .event-table td { padding: 16px 24px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
-        .event-table tbody tr:hover { background-color: #F8F9FA; }
-
-        /* Info Sel (Nama Acara) */
-        .event-info-cell { display: flex; align-items: center; gap: 16px; }
-        .event-icon {
-            width: 40px; height: 40px; border-radius: var(--radius-md); background-color: #F3F4F6;
-            display: flex; align-items: center; justify-content: center; color: var(--text-muted);
-        }
-        .event-text { display: flex; flex-direction: column; gap: 4px; }
-        .event-name { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); }
-        .event-dept { font-size: 0.8rem; color: var(--text-muted); }
-
-        /* Teks Tanggal */
-        .event-date-text { font-size: 0.9rem; font-weight: 600; color: var(--text-dark); }
-
-        /* Badge Status */
-        .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
-        .badge-active { background-color: #EFF6FF; color: #1D4ED8; } /* Biru */
-        .badge-completed { background-color: #F3F4F6; color: #4B5563; } /* Abu-abu */
-
-        /* Aksi (Edit/Delete) */
-        .action-group { display: flex; gap: 8px; }
-        .btn-action-sm {
-            background: none; border: none; cursor: pointer; padding: 6px; border-radius: var(--radius-md);
-            transition: all 0.2s; color: var(--text-muted);
-        }
-        .btn-action-sm:hover { background-color: #E5E7EB; }
-        .btn-delete:hover { background-color: #FEE2E2; color: #DC2626; } /* Hover merah untuk delete */
-    </style>
-
-    <div class="event-page-wrapper">
-
-        <header class="page-header">
-            <div class="header-text">
-                <h1 class="header-title">Deteksi Anomali</h1>
-                <p class="header-desc">Mengawasi dan mengevaluasi kegiatan akademik. Melacak metrik kinerja dan menjaga keunggulan institusi di seluruh departemen.</p>
-            </div>
-            <button class="btn-pill-primary">
-                <div class="icon-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                </div>
-                Tambah Event
-            </button>
-        </header>
-
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <span class="metric-label">Jumlah Acara Yang Sedang Berlangsung</span>
-                <span class="metric-value">12</span>
-                <span class="metric-sub">+2 bulan ini</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Selesai</span>
-                <span class="metric-value">148</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-label">Peringkat Rata-Rata</span>
-                <span class="metric-value">4.8</span>
-            </div>
-        </div>
-
-        <div class="table-card">
-            
-            <div class="table-header-section">
-                <h2 class="section-title">Acara Mendatang dan Terkini</h2>
-                <div class="table-controls">
-                    <button class="btn-icon-only">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                    </button>
-                    <button class="btn-icon-only">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    </button>
-                </div>
-            </div>
-
-            <div style="overflow-x: auto;">
-                <table class="event-table">
-                    <thead>
-                        <tr>
-                            <th>Nama Acara</th>
-                            <th>Tanggal Kegiatan</th>
-                            <th>Status Saat Ini</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                        <tr>
-                            <td>
-                                <div class="event-info-cell">
-                                    <div class="event-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                    </div>
-                                    <div class="event-text">
-                                        <span class="event-name">International Symposium 2024</span>
-                                        <span class="event-dept">Academic Affairs Department</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="event-date-text">Oct 24 - 26, 2024</span></td>
-                            <td><span class="badge-status badge-active">ACTIVE</span></td>
-                            <td>
-                                <div class="action-group">
-                                    <button class="btn-action-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                                    <button class="btn-action-sm btn-delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="event-info-cell">
-                                    <div class="event-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                                    </div>
-                                    <div class="event-text">
-                                        <span class="event-name">University Sports Week</span>
-                                        <span class="event-dept">Student Executive Body</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="event-date-text">Sep 12 - 19, 2024</span></td>
-                            <td><span class="badge-status badge-completed">COMPLETED</span></td>
-                            <td>
-                                <div class="action-group">
-                                    <button class="btn-action-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                                    <button class="btn-action-sm btn-delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="event-info-cell">
-                                    <div class="event-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                    </div>
-                                    <div class="event-text">
-                                        <span class="event-name">Annual Innovation Fair</span>
-                                        <span class="event-dept">Research & Development</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="event-date-text">Nov 05, 2024</span></td>
-                            <td><span class="badge-status badge-active">ACTIVE</span></td>
-                            <td>
-                                <div class="action-group">
-                                    <button class="btn-action-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                                    <button class="btn-action-sm btn-delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </div>
+    <div class="db-header">
+        <div class="db-title-area">
+            <h1 class="db-title">Deteksi Bias &<br>Nilai Anomali</h1>
+            <p class="db-desc">Sistem mendeteksi deviasi nilai signifikan yang berada di luar batas toleransi akademik (ambang batas selisih &plusmn;1.5).</p>
         </div>
         
-        <footer style="text-align: center; margin-top: 16px; font-size: 0.75rem; color: var(--text-placeholder);">
-            &copy; 2026 Sistem Evaluasi Panitia Event Kampus
-        </footer>
-
+        <div class="db-filters">
+            <span class="filter-label">Filter:</span>
+            <select class="filter-select">
+                <option>Semua Data</option>
+                <option>Dies Natalis 2024</option>
+                <option>Seminar Nasional</option>
+            </select>
+            <div class="toggle-container">
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label" onclick="document.querySelector('.switch input').click()">Tampilkan hanya data anomali</span>
+            </div>
+        </div>
     </div>
 
+    <div class="db-kpi-grid">
+        <div class="db-kpi-card maroon">
+            <svg class="kpi-watermark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+            <div class="kpi-label">TOTAL DEVIASI</div>
+            <div class="kpi-val">12</div>
+            <div class="kpi-sub-trend">↑ +4 dari periode lalu</div>
+        </div>
+
+        <div class="db-kpi-card">
+            <div class="kpi-label">RATA-RATA SELISIH</div>
+            <div class="kpi-val">2.4</div>
+            <div class="kpi-chip-moderate">Kategori: Moderate</div>
+        </div>
+
+        <div class="db-kpi-card">
+            <div class="kpi-label">AKURASI PENILAIAN</div>
+            <div class="kpi-val">94%</div>
+            <div class="kpi-status-green">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                Dalam Ambang Batas
+            </div>
+        </div>
+    </div>
+
+    <div class="db-table-card">
+        <div class="db-table-head">
+            <h2 class="db-table-title">Daftar Audit Penilaian Panitia</h2>
+            <div class="db-tools">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            </div>
+        </div>
+
+        <div class="db-list-wrapper">
+            <div class="db-list-header">
+                <div>NAMA PANITIA</div>
+                <div>DEPARTEMEN</div>
+                <div>NILAI</div>
+                <div>RATA-RATA</div>
+                <div>SELISIH</div>
+                <div>STATUS</div>
+            </div>
+
+            <div class="db-list-row">
+                <div class="col-user">
+                    <div class="user-ava" style="background-color: #10b981;">AW</div>
+                    <div class="user-name">
+                        Ana Wijaya
+                        <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                </div>
+                <div class="col-dept">Event IT Expo</div>
+                <div class="col-num">4.8</div>
+                <div class="col-num">3.2</div>
+                <div class="col-diff diff-alert">+1.6</div>
+                <div><span class="badge-status status-anomali">ANOMALI</span></div>
+            </div>
+
+            <div class="db-list-row">
+                <div class="col-user">
+                    <div class="user-ava" style="background-color: #3b82f6;">SA</div>
+                    <div class="user-name">Siti Aminah</div>
+                </div>
+                <div class="col-dept">Webinar Nasional</div>
+                <div class="col-num">3.5</div>
+                <div class="col-num">3.4</div>
+                <div class="col-diff diff-normal">+0.1</div>
+                <div><span class="badge-status status-normal">NORMAL</span></div>
+            </div>
+
+            <div class="db-list-row">
+                <div class="col-user">
+                    <div class="user-ava" style="background-color: #f59e0b;">BS</div>
+                    <div class="user-name">
+                        Budi Santoso
+                        <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                </div>
+                <div class="col-dept">Dies Natalis 2024</div>
+                <div class="col-num">1.2</div>
+                <div class="col-num">3.8</div>
+                <div class="col-diff diff-alert">-2.6</div>
+                <div><span class="badge-status status-anomali">ANOMALI</span></div>
+            </div>
+
+            <div class="db-list-row">
+                <div class="col-user">
+                    <div class="user-ava" style="background-color: #8b5cf6;">RR</div>
+                    <div class="user-name">Rina Rahmawati</div>
+                </div>
+                <div class="col-dept">Lomba Debat Univ</div>
+                <div class="col-num">4.0</div>
+                <div class="col-num">4.1</div>
+                <div class="col-diff diff-normal">-0.1</div>
+                <div><span class="badge-status status-normal">NORMAL</span></div>
+            </div>
+
+            <div class="db-list-row">
+                <div class="col-user">
+                    <div class="user-ava" style="background-color: #ef4444;">FN</div>
+                    <div class="user-name">
+                        Fajar Nugraha
+                        <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                </div>
+                <div class="col-dept">Seminar Karier</div>
+                <div class="col-num">5.0</div>
+                <div class="col-num">2.8</div>
+                <div class="col-diff diff-alert">+2.2</div>
+                <div><span class="badge-status status-anomali">ANOMALI</span></div>
+            </div>
+        </div>
+
+        <div class="db-pagination">
+            <div class="page-info">Menampilkan 5 dari 128 total baris data</div>
+            <div class="page-controls">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn" title="Next"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="db-interpretasi">
+        <h3 class="int-title">Interpretasi Data</h3>
+        <p class="int-desc">
+            Sistem secara otomatis menandai baris sebagai anomali apabila nilai yang diberikan memiliki selisih mutlak <span class="int-highlight">&gt; 1.5</span> dibandingkan dengan rata-rata kelompok departemen tersebut. Hal ini dapat menjadi indikator adanya <span class="int-highlight">bias penilaian pribadi</span>, ketidakpahaman terhadap rubrik, atau performa individu yang memang ekstrem di lapangan.
+        </p>
+        <div class="int-legend">
+            <div class="legend-item"><div class="dot-legend bg-yellow"></div> DEVIASI TINGGI</div>
+            <div class="legend-item"><div class="dot-legend bg-red"></div> SKOR KRITIS</div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 8px; font-size: 0.75rem; color: var(--text-placeholder); font-weight: 600;">
+        &copy; 2026 SISTEM EVALUASI PANITIA EVENT KAMPUS
+    </footer>
+
+</div>
 @endsection
