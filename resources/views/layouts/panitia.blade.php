@@ -217,15 +217,15 @@
             </div>
 
             <nav class="sidebar__nav">
-                <a href="/dashboard-admin" class="sidebar__link {{ request()->is('dashboard-admin') ? 'sidebar__link--active' : '' }}">                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <a href="/dashboard-panitia" class="sidebar__link {{ request()->is('dashboard-panitia') ? 'sidebar__link--active' : '' }}">                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    Dashboard Admin
+                    Dashboard Panitia
                 </a>
-                <a href="/manajemen-event" class="sidebar__link {{ request()->is('manajemen-event') ? 'sidebar__link--active' : '' }}">
+                <a href="/hasil-evaluasi-panitia" class="sidebar__link {{ request()->is('hasil-evaluasi') ? 'sidebar__link--active' : '' }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2"></rect>
@@ -236,60 +236,7 @@
                         <line x1="12" y1="14" x2="12" y2="14"></line>
                         <line x1="16" y1="14" x2="16" y2="14"></line>
                     </svg>
-                    Manajemen Event
-                </a>
-                <a href="/manajemen-divisi" class="sidebar__link {{ request()->is('manajemen-divisi') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    Manajemen Divisi
-                </a>
-                <a href="/manajemen-panitia" class="sidebar__link {{ request()->is('manajemen-panitia') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="16" rx="2"></rect>
-                        <circle cx="12" cy="10" r="3"></circle>
-                        <path d="M7 20c0-3.3 2.7-5 5-5s5 1.7 5 5"></path>
-                    </svg>
-                    Manajemen Panitia
-                </a>
-                <a href="/manajemen-user" class="sidebar__link {{ request()->is('manajemen-user') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="8" cy="7" r="4"></circle>
-                        <line x1="20" y1="8" x2="20" y2="14"></line>
-                        <line x1="23" y1="11" x2="17" y2="11"></line>
-                    </svg>
-                    Manajemen User
-                </a>
-                <a href="/monitoring-evaluasi" class="sidebar__link {{ request()->is('monitoring-evaluasi') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    Monitoring Evaluasi
-                </a>
-                <a href="/hasil-evaluasi" class="sidebar__link {{ request()->is('hasil-evaluasi') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="8" y1="17" x2="8" y2="10"></line>
-                        <line x1="12" y1="17" x2="12" y2="7"></line>
-                        <line x1="16" y1="17" x2="16" y2="13"></line>
-                    </svg>
                     Hasil Evaluasi
-                </a>
-                 <a href="/deteksi-anomali" class="sidebar__link {{ request()->is('deteksi-anomali') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    Deteksi Anomali
-                </a>
-                <a href="/ranking" class="sidebar__link {{ request()->is('ranking') ? 'sidebar__link--active' : '' }}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                    Ranking
                 </a>
                 </nav>
 

@@ -28,14 +28,9 @@ Route::get('/dashboard', function () {
     return view('dashboard.index');
 })->middleware('auth')->name('dashboard');
 
-/* DASHBOARD PANITIA */
-Route::get('/dashboard-panitia', function () {
-    return view('dashboard_panitia.index');
-})->middleware('auth')->name('dashboard.panitia');
-
 /* DASHBOARD ADMIN */
 Route::get('/dashboard-admin', function () {
-    return view('dashboard.index');
+    return view('dashboard_admin.index');
 })->middleware('auth')->name('dashboard.admin');
 
 /*Manajemen Event*/
@@ -77,3 +72,13 @@ Route::get('/deteksi-anomali', function () {
 Route::get('/ranking', function () {
     return view('ranking.index');
 })->name('ranking.index');
+
+/* DASHBOARD PANITIA */
+Route::get('/dashboard-panitia', function () {
+    return view('dashboard_panitia.index');
+})->middleware('auth')->name('dashboard.panitia');
+
+/* Hasil Evaluasi */
+Route::get('/hasil-evaluasi-panitia', function () {
+    return view('hasil_evaluasi_panitia.index');
+})->name('hasil-panitia.index');
