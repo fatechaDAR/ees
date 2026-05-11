@@ -706,7 +706,8 @@
             </table>
         </div>
 
-        </div> <footer class="dashboard-footer">
+        </div>
+        <footer class="dashboard-footer">
             &copy; 2026 Sistem Evaluasi Panitia Event Kampus
         </footer>
 
