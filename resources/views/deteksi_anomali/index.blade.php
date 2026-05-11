@@ -194,22 +194,22 @@
         <div class="db-kpi-card maroon">
             <svg class="kpi-watermark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
             <div class="kpi-label">TOTAL DEVIASI</div>
-            <div class="kpi-val">12</div>
-            <div class="kpi-sub-trend">↑ +4 dari periode lalu</div>
+            <div class="kpi-val">{{ $totalAnomalies }}</div>
+            <div class="kpi-sub-trend">Butuh Tinjauan</div>
         </div>
 
         <div class="db-kpi-card">
-            <div class="kpi-label">RATA-RATA SELISIH</div>
-            <div class="kpi-val">2.4</div>
-            <div class="kpi-chip-moderate">Kategori: Moderate</div>
+            <div class="kpi-label">RATA-RATA SKOR ANOMALI</div>
+            <div class="kpi-val">{{ number_format($avgDeviation, 1) }}</div>
+            <div class="kpi-chip-moderate">Kategori: {{ $avgDeviation < 1.5 ? 'Critical' : 'Warning' }}</div>
         </div>
 
         <div class="db-kpi-card">
             <div class="kpi-label">AKURASI PENILAIAN</div>
-            <div class="kpi-val">94%</div>
-            <div class="kpi-status-green">
+            <div class="kpi-val">{{ $accuracy }}%</div>
+            <div class="kpi-status-green" style="color: {{ $accuracy >= 90 ? '#10b981' : ($accuracy >= 75 ? '#f59e0b' : '#ef4444') }}">
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                Dalam Ambang Batas
+                {{ $accuracy >= 90 ? 'Sistem Stabil' : ($accuracy >= 75 ? 'Butuh Perhatian' : 'Kritis') }}
             </div>
         </div>
     </div>
@@ -226,90 +226,37 @@
         <div class="db-list-wrapper">
             <div class="db-list-header">
                 <div>NAMA PANITIA</div>
-                <div>DEPARTEMEN</div>
+                <div>EVENT</div>
                 <div>NILAI</div>
-                <div>RATA-RATA</div>
-                <div>SELISIH</div>
+                <div>PENILAI</div>
                 <div>STATUS</div>
             </div>
 
+            @forelse($anomalies as $anomaly)
             <div class="db-list-row">
                 <div class="col-user">
-                    <div class="user-ava" style="background-color: #10b981;">AW</div>
+                    <div class="user-ava" style="background-color: {{ '#' . substr(md5($anomaly->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($anomaly->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
                     <div class="user-name">
-                        Ana Wijaya
+                        {{ $anomaly->evaluatee->user->name ?? 'N/A' }}
                         <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     </div>
                 </div>
-                <div class="col-dept">Event IT Expo</div>
-                <div class="col-num">4.8</div>
-                <div class="col-num">3.2</div>
-                <div class="col-diff diff-alert">+1.6</div>
+                <div class="col-dept">{{ Str::limit($anomaly->event->name ?? 'N/A', 20) }}</div>
+                <div class="col-num">{{ number_format($anomaly->final_score, 1) }}</div>
+                <div class="col-dept">{{ $anomaly->evaluator->name ?? 'N/A' }}</div>
                 <div><span class="badge-status status-anomali">ANOMALI</span></div>
             </div>
-
-            <div class="db-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #3b82f6;">SA</div>
-                    <div class="user-name">Siti Aminah</div>
-                </div>
-                <div class="col-dept">Webinar Nasional</div>
-                <div class="col-num">3.5</div>
-                <div class="col-num">3.4</div>
-                <div class="col-diff diff-normal">+0.1</div>
-                <div><span class="badge-status status-normal">NORMAL</span></div>
-            </div>
-
-            <div class="db-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #f59e0b;">BS</div>
-                    <div class="user-name">
-                        Budi Santoso
-                        <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                    </div>
-                </div>
-                <div class="col-dept">Dies Natalis 2024</div>
-                <div class="col-num">1.2</div>
-                <div class="col-num">3.8</div>
-                <div class="col-diff diff-alert">-2.6</div>
-                <div><span class="badge-status status-anomali">ANOMALI</span></div>
-            </div>
-
-            <div class="db-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #8b5cf6;">RR</div>
-                    <div class="user-name">Rina Rahmawati</div>
-                </div>
-                <div class="col-dept">Lomba Debat Univ</div>
-                <div class="col-num">4.0</div>
-                <div class="col-num">4.1</div>
-                <div class="col-diff diff-normal">-0.1</div>
-                <div><span class="badge-status status-normal">NORMAL</span></div>
-            </div>
-
-            <div class="db-list-row">
-                <div class="col-user">
-                    <div class="user-ava" style="background-color: #ef4444;">FN</div>
-                    <div class="user-name">
-                        Fajar Nugraha
-                        <svg class="icon-warning" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                    </div>
-                </div>
-                <div class="col-dept">Seminar Karier</div>
-                <div class="col-num">5.0</div>
-                <div class="col-num">2.8</div>
-                <div class="col-diff diff-alert">+2.2</div>
-                <div><span class="badge-status status-anomali">ANOMALI</span></div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Tidak ada anomali yang terdeteksi.</div>
+            @endforelse
         </div>
 
         <div class="db-pagination">
-            <div class="page-info">Menampilkan 5 dari 128 total baris data</div>
+            <div class="page-info">Menampilkan {{ $anomalies->firstItem() ?? 0 }} sampai {{ $anomalies->lastItem() ?? 0 }} dari {{ $anomalies->total() }} total data anomali</div>
             <div class="page-controls">
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn" title="Next"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                {{ $anomalies->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>

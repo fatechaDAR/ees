@@ -213,26 +213,26 @@
             
             <div class="kpi-label">SKOR RATA-RATA GLOBAL</div>
             <div class="kpi-main-row">
-                <span class="kpi-main-val">4.82</span>
+                <span class="kpi-main-val">{{ number_format($avgScoreGlobal, 2) }}</span>
                 <span class="kpi-main-scale">/ 5.0</span>
             </div>
             <div class="kpi-chip-row">
-                <span class="kpi-chip">↑ Terlampau +12%</span>
-                <span class="kpi-chip-text">Dibandingkan tahun lalu</span>
+                <span class="kpi-chip">Sinkron</span>
+                <span class="kpi-chip-text">Data riil database</span>
             </div>
         </div>
 
         <div class="hep-kpi-card">
             <div class="kpi-label">TOTAL PANITIA</div>
-            <div class="kpi-val">124</div>
-            <div class="kpi-sub">6 Divisi Aktif</div>
+            <div class="kpi-val">{{ $totalPanitia }}</div>
+            <div class="kpi-sub">Anggota Terdaftar</div>
         </div>
 
         <div class="hep-kpi-card">
-            <div class="kpi-label">SANGAT BAIK</div>
-            <div class="kpi-val">82%</div>
+            <div class="kpi-label">SANGAT BAIK (>4.0)</div>
+            <div class="kpi-val">{{ $persentaseSangatBaik }}%</div>
             <div class="kpi-progress-track">
-                <div class="kpi-progress-fill" style="width: 82%;"></div>
+                <div class="kpi-progress-fill" style="width: {{ $persentaseSangatBaik }}%;"></div>
             </div>
         </div>
     </div>
@@ -241,10 +241,10 @@
         <div class="hep-table-head">
             <h2 class="hep-table-title">Rincian Nilai Individu</h2>
             <select class="filter-select">
-                <option>Semua Divisi</option>
-                <option>Koordinator Acara</option>
-                <option>Logistik</option>
-                <option>Konsumsi</option>
+                <option value="">Semua Event</option>
+                @foreach($events as $event)
+                    <option value="{{ $event->id }}">{{ $event->name }}</option>
+                @endforeach
             </select>
         </div>
 
@@ -252,89 +252,46 @@
             <div class="hep-list-header">
                 <div>NAMA PANITIA</div>
                 <div>DIVISI</div>
-                <div>TOTAL NILAI</div>
+                <div>EVENT</div>
                 <div>RATA-RATA</div>
                 <div>KATEGORI</div>
             </div>
 
+            @forelse($results as $res)
             <div class="hep-list-row">
                 <div class="col-user">
-                    <div class="user-ava ava-1">AD</div>
+                    <div class="user-ava" style="background-color: {{ '#' . substr(md5($res->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($res->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
                     <div>
-                        <div class="user-name">Ahmad Dhani</div>
-                        <div class="user-id">ID: PNT-089</div>
+                        <div class="user-name">{{ $res->evaluatee->user->name ?? 'N/A' }}</div>
+                        <div class="user-id">ID: PNT-{{ str_pad($res->evaluatee->id, 3, '0', STR_PAD_LEFT) }}</div>
                     </div>
                 </div>
-                <div><span class="divisi-pill">Koordinator Acara</span></div>
-                <div class="col-total">492</div>
-                <div class="col-avg">4.92</div>
-                <div><span class="badge-cat cat-sb">SANGAT BAIK</span></div>
-            </div>
-
-            <div class="hep-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-2">SA</div>
-                    <div>
-                        <div class="user-name">Sarah Amelia</div>
-                        <div class="user-id">ID: PNT-042</div>
-                    </div>
+                <div><span class="divisi-pill">{{ $res->evaluatee->division->name ?? 'N/A' }}</span></div>
+                <div class="col-total">{{ Str::limit($res->event->name ?? 'N/A', 20) }}</div>
+                <div class="col-avg">{{ number_format($res->final_score, 2) }}</div>
+                <div>
+                    @php
+                        $score = $res->final_score;
+                        $cat = 'SK'; $label = 'SANGAT KURANG';
+                        if($score >= 4.5) { $cat = 'sb'; $label = 'SANGAT BAIK'; }
+                        elseif($score >= 3.5) { $cat = 'b'; $label = 'BAIK'; }
+                        elseif($score >= 2.5) { $cat = 'c'; $label = 'CUKUP'; }
+                        elseif($score >= 1.5) { $cat = 'k'; $label = 'KURANG'; }
+                    @endphp
+                    <span class="badge-cat cat-{{ $cat }}">{{ $label }}</span>
                 </div>
-                <div><span class="divisi-pill">Hubungan Masyarakat</span></div>
-                <div class="col-total">415</div>
-                <div class="col-avg">4.15</div>
-                <div><span class="badge-cat cat-b">BAIK</span></div>
             </div>
-
-            <div class="hep-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-3">BP</div>
-                    <div>
-                        <div class="user-name">Bambang Pamungkas</div>
-                        <div class="user-id">ID: PNT-015</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">Logistik</span></div>
-                <div class="col-total">345</div>
-                <div class="col-avg">3.45</div>
-                <div><span class="badge-cat cat-c">CUKUP</span></div>
-            </div>
-
-            <div class="hep-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-4">RR</div>
-                    <div>
-                        <div class="user-name">Rina Rahayu</div>
-                        <div class="user-id">ID: PNT-102</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">Keamanan</span></div>
-                <div class="col-total">280</div>
-                <div class="col-avg">2.80</div>
-                <div><span class="badge-cat cat-k">KURANG</span></div>
-            </div>
-
-            <div class="hep-list-row">
-                <div class="col-user">
-                    <div class="user-ava ava-5">JP</div>
-                    <div>
-                        <div class="user-name">Joko Purwanto</div>
-                        <div class="user-id">ID: PNT-118</div>
-                    </div>
-                </div>
-                <div><span class="divisi-pill">Konsumsi</span></div>
-                <div class="col-total">150</div>
-                <div class="col-avg">1.50</div>
-                <div><span class="badge-cat cat-sk">SANGAT KURANG</span></div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada hasil evaluasi.</div>
+            @endforelse
         </div>
 
         <div class="hep-pagination">
-            <div class="page-info">Menampilkan 5 dari 124 panitia</div>
+            <div class="page-info">Menampilkan {{ $results->firstItem() ?? 0 }} sampai {{ $results->lastItem() ?? 0 }} dari {{ $results->total() }} panitia</div>
             <div class="page-controls">
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn" title="Next"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                {{ $results->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>

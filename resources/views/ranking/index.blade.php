@@ -179,44 +179,53 @@
     </div>
 
     <div class="podium-grid">
+        {{-- Juara 2 --}}
+        @if(isset($top3[1]))
         <div class="podium-card">
-            <div class="podium-ava ava-sw">SW</div>
-            <h3 class="podium-name">Sarah Wijaya</h3>
-            <div class="podium-divisi">Divisi Hubungan Masyarakat</div>
-            <div class="podium-score">94.8</div>
-            <div class="badge-rank badge-mod">Skor Moderate</div>
+            <div class="podium-ava" style="background-color: {{ '#' . substr(md5($top3[1]->evaluatee->user->name ?? 'User2'), 0, 6) }}">
+                {{ strtoupper(substr($top3[1]->evaluatee->user->name ?? 'U', 0, 2)) }}
+            </div>
+            <h3 class="podium-name">{{ $top3[1]->evaluatee->user->name ?? 'N/A' }}</h3>
+            <div class="podium-divisi">{{ $top3[1]->evaluatee->division->name ?? 'N/A' }}</div>
+            <div class="podium-score">{{ number_format($top3[1]->avg_score, 1) }}</div>
+            <div class="badge-rank badge-mod">RANK #2</div>
         </div>
+        @endif
 
+        {{-- Juara 1 --}}
+        @if(isset($top3[0]))
         <div class="podium-card maroon">
             <div class="podium-icon">
                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"></path></svg>
             </div>
-            <div class="podium-ava ava-bs">BS</div>
-            <h3 class="podium-name">Budi Santoso</h3>
-            <div class="podium-divisi">Divisi Operasional</div>
-            <div class="podium-score">98.2</div>
-            <div class="badge-rank badge-top">Top Performer</div>
+            <div class="podium-ava ava-bs">
+                {{ strtoupper(substr($top3[0]->evaluatee->user->name ?? 'U', 0, 2)) }}
+            </div>
+            <h3 class="podium-name">{{ $top3[0]->evaluatee->user->name ?? 'N/A' }}</h3>
+            <div class="podium-divisi">{{ $top3[0]->evaluatee->division->name ?? 'N/A' }}</div>
+            <div class="podium-score">{{ number_format($top3[0]->avg_score, 1) }}</div>
+            <div class="badge-rank badge-top">RANK #1</div>
         </div>
+        @endif
 
+        {{-- Juara 3 --}}
+        @if(isset($top3[2]))
         <div class="podium-card">
-            <div class="podium-ava ava-nk">NK</div>
-            <h3 class="podium-name">Nina Kurnia</h3>
-            <div class="podium-divisi">Divisi Konsumsi</div>
-            <div class="podium-score">91.5</div>
-            <div class="badge-rank badge-mod">Skor Moderate</div>
+            <div class="podium-ava" style="background-color: {{ '#' . substr(md5($top3[2]->evaluatee->user->name ?? 'User3'), 0, 6) }}">
+                {{ strtoupper(substr($top3[2]->evaluatee->user->name ?? 'U', 0, 2)) }}
+            </div>
+            <h3 class="podium-name">{{ $top3[2]->evaluatee->user->name ?? 'N/A' }}</h3>
+            <div class="podium-divisi">{{ $top3[2]->evaluatee->division->name ?? 'N/A' }}</div>
+            <div class="podium-score">{{ number_format($top3[2]->avg_score, 1) }}</div>
+            <div class="badge-rank badge-mod">RANK #3</div>
         </div>
+        @endif
     </div>
 
     <div class="rp-table-card">
         <div class="rp-table-head">
             <h2 class="rp-table-title">Full Committee Standing</h2>
             <div class="rp-tools">
-                <select class="filter-select">
-                    <option>Semua Divisi</option>
-                    <option>Operasional</option>
-                    <option>Humas</option>
-                    <option>Logistik</option>
-                </select>
                 <button class="btn-export">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Export Report
@@ -233,84 +242,54 @@
                 <div style="text-align: right;">NILAI AKHIR</div>
             </div>
 
+            @forelse($rankings as $index => $rank)
             <div class="rp-list-row">
-                <div class="col-rank">#4</div>
+                <div class="col-rank">#{{ ($rankings->currentPage() - 1) * $rankings->perPage() + $index + 1 }}</div>
                 <div class="col-user">
-                    <div class="user-ava-sm" style="background-color: #8b5cf6;">AP</div>
-                    <div class="user-name">Andi Pratama</div>
+                    <div class="user-ava-sm" style="background-color: {{ '#' . substr(md5($rank->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($rank->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
+                    <div class="user-name">{{ $rank->evaluatee->user->name ?? 'N/A' }}</div>
                 </div>
-                <div class="col-div">Divisi Logistik</div>
+                <div class="col-div">{{ $rank->evaluatee->division->name ?? 'N/A' }}</div>
                 <div class="stab-container">
-                    <div class="stab-track"><div class="stab-fill" style="width: 89%;"></div></div>
+                    <div class="stab-track"><div class="stab-fill" style="width: {{ ($rank->avg_score / 5) * 100 }}%;"></div></div>
                 </div>
-                <div class="col-score">89.4</div>
+                <div class="col-score">{{ number_format($rank->avg_score, 1) }}</div>
             </div>
-
-            <div class="rp-list-row">
-                <div class="col-rank">#5</div>
-                <div class="col-user">
-                    <div class="user-ava-sm" style="background-color: #ec4899;">SA</div>
-                    <div class="user-name">Siska Amelia</div>
-                </div>
-                <div class="col-div">Divisi Acara</div>
-                <div class="stab-container">
-                    <div class="stab-track"><div class="stab-fill" style="width: 88%;"></div></div>
-                </div>
-                <div class="col-score">88.2</div>
-            </div>
-
-            <div class="rp-list-row">
-                <div class="col-rank">#6</div>
-                <div class="col-user">
-                    <div class="user-ava-sm" style="background-color: #10b981;">RH</div>
-                    <div class="user-name">Rian Hidayat</div>
-                </div>
-                <div class="col-div">Divisi Perlengkapan</div>
-                <div class="stab-container">
-                    <div class="stab-track"><div class="stab-fill" style="width: 85%;"></div></div>
-                </div>
-                <div class="col-score">85.9</div>
-            </div>
-
-            <div class="rp-list-row">
-                <div class="col-rank">#7</div>
-                <div class="col-user">
-                    <div class="user-ava-sm" style="background-color: #f59e0b;">EP</div>
-                    <div class="user-name">Eka Putri</div>
-                </div>
-                <div class="col-div">Divisi Dokumentasi</div>
-                <div class="stab-container">
-                    <div class="stab-track"><div class="stab-fill" style="width: 84%;"></div></div>
-                </div>
-                <div class="col-score">84.1</div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada data ranking.</div>
+            @endforelse
         </div>
 
         <div class="rp-table-footer">
-            <button class="btn-load">Load all list (120 panitia) &darr;</button>
+            {{ $rankings->links('pagination::simple-bootstrap-4') }}
         </div>
     </div>
 
     <div class="rp-insight-grid">
         <div class="ins-card maroon">
             <div class="ins-label">AVERAGE SCORE GROWTH</div>
-            <div class="ins-val">+12.4%</div>
-            <div class="ins-sub">↑ dibanding semester sebelumnya</div>
+            <div class="ins-val">{{ $avgGrowth }}</div>
+            <div class="ins-sub">
+                @if($avgGrowth == 'New Event')
+                    Data awal event pertama
+                @else
+                    {{ str_starts_with($avgGrowth, '+') ? '↑' : '↓' }} dibanding event sebelumnya
+                @endif
+            </div>
         </div>
 
         <div class="ins-card">
             <div class="ins-label">TOP DIVISION</div>
-            <div class="ins-val" style="color: var(--primary-color);">Operasional</div>
-            <div class="ins-sub">Avg Score 92.4</div>
+            <div class="ins-val" style="color: var(--primary-color);">{{ $topDivision->name ?? 'Belum ada data' }}</div>
+            <div class="ins-sub">Avg Score {{ number_format($topDivision->avg_score ?? 0, 1) }}</div>
         </div>
 
         <div class="ins-card">
-            <div class="ins-label">BEST IMPROVEMENT</div>
-            <div class="ins-val">Deni Ramadhan</div>
-            <div class="ins-sub" style="color: #10b981; display: flex; align-items: center; gap: 4px;">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"></path></svg>
-                +15.2 pts jump
-            </div>
+            <div class="ins-label">SYSTEM STATUS</div>
+            <div class="ins-val" style="color: #10b981;">Database Connected</div>
+            <div class="ins-sub">Real-time data enabled</div>
         </div>
     </div>
 

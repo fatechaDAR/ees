@@ -167,141 +167,112 @@
             <div class="kpi-lbl">RATA-RATA NILAI PERFORMA</div>
             <div class="kpi-score-wrapper">
                 <div class="kpi-score-group">
-                    <span class="kpi-score">4.82</span>
+                    <span class="kpi-score">{{ number_format($avgScore, 2) }}</span>
                     <span class="kpi-scale">/ 5.00</span>
                 </div>
                 <div class="kpi-badge-wrapper">
                     <span class="kpi-badge-label">Predikat Performa</span>
-                    <span class="kpi-badge-predikat">SANGAT BAIK</span>
+                    @php
+                        $predikat = 'KURANG';
+                        if($avgScore >= 4.5) $predikat = 'SANGAT BAIK';
+                        elseif($avgScore >= 3.5) $predikat = 'BAIK';
+                        elseif($avgScore >= 2.5) $predikat = 'CUKUP';
+                    @endphp
+                    <span class="kpi-badge-predikat" style="background-color: {{ $avgScore >= 3.5 ? '#dcfce7' : '#fee2e2' }}; color: {{ $avgScore >= 3.5 ? '#166534' : '#b91c1c' }}">
+                        {{ $predikat }}
+                    </span>
                 </div>
             </div>
             <div class="kpi-trend">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                Meningkat 0.15 dari event sebelumnya
+                Sinkronisasi Data Database Berhasil
             </div>
         </div>
 
         <div class="lhep-kpi-card">
             <div class="kpi-lbl">PERINGKAT PANITIA</div>
             <div class="kpi-rank-group">
-                <span class="kpi-rank">#3</span>
-                <span class="kpi-total">/ 45</span>
+                <span class="kpi-rank">#{{ $rank }}</span>
+                <span class="kpi-total">/ {{ $totalPanitia }}</span>
             </div>
             <div class="kpi-rank-desc">
-                ✨ Anda berada di <strong>Top 10%</strong> panitia terbaik dalam event ini.
+                ✨ Peringkat Anda dikalkulasi berdasarkan rata-rata skor seluruh panitia aktif.
             </div>
         </div>
     </div>
 
     <div class="sec-card">
         <div class="sec-header">
-            <h2 class="sec-title">Detail Per Kriteria</h2>
-            <div class="sec-subtitle">Berdasarkan 12 Responden</div>
+            <h2 class="sec-title">Detail Riwayat Evaluasi</h2>
+            <div class="sec-subtitle">Total {{ $evaluations->count() }} Penilaian</div>
         </div>
 
         <div class="crit-list-wrapper">
             <div class="crit-list-header">
-                <div>KRITERIA PENILAIAN</div>
-                <div>VISUAL SCORE</div>
-                <div style="text-align: center;">RATA-RATA</div>
-                <div style="text-align: center;">KATEGORI</div>
+                <div>PENILAI</div>
+                <div>KOMENTAR / CATATAN</div>
+                <div style="text-align: center;">SKOR</div>
+                <div style="text-align: center;">TANGGAL</div>
             </div>
 
+            @forelse($evaluations as $eval)
             <div class="crit-list-row">
                 <div>
-                    <div class="crit-name">Inisiatif & Kerjasama Tim</div>
-                    <div class="crit-desc">Menekankan kemampuan bekerja sama dan proaktif dalam menyelesaikan hambatan kelompok.</div>
+                    <div class="crit-name">{{ $eval->evaluator->name ?? 'Evaluator' }}</div>
+                    <div class="crit-desc">Peran: {{ strtoupper($eval->evaluator->role ?? 'N/A') }}</div>
                 </div>
-                <div class="crit-stars">
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                </div>
-                <div class="crit-score">4.95</div>
-                <div><span class="badge-cat cat-ex">EXEMPLARY</span></div>
-            </div>
-
-            <div class="crit-list-row">
                 <div>
-                    <div class="crit-name">Kedisiplinan & Waktu</div>
-                    <div class="crit-desc">Ketepatan waktu kehadiran rapat dan kepatuhan terhadap deadline tugas divisi.</div>
+                    <div class="crit-desc">"{{ $eval->notes ?? 'Tidak ada catatan tambahan' }}"</div>
                 </div>
-                <div class="crit-stars">
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon star-empty" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                <div class="crit-score">{{ number_format($eval->final_score, 1) }}</div>
+                <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+                    {{ $eval->created_at->format('d/m/Y') }}
                 </div>
-                <div class="crit-score">4.20</div>
-                <div><span class="badge-cat cat-sb">SANGAT BAIK</span></div>
             </div>
-
-            <div class="crit-list-row">
-                <div>
-                    <div class="crit-name">Kualitas Komunikasi</div>
-                    <div class="crit-desc">Kejelasan & efektivitas penyampaian informasi antar sesama anggota dan stakeholder.</div>
-                </div>
-                <div class="crit-stars">
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                </div>
-                <div class="crit-score">4.88</div>
-                <div><span class="badge-cat cat-ex">EXEMPLARY</span></div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada data evaluasi untuk Anda.</div>
+            @endforelse
         </div>
     </div>
 
     <div class="sec-card">
         <div class="sec-header">
-            <h2 class="sec-title">Tabel Ranking Panitia dalam Event</h2>
+            <h2 class="sec-title">Top Leaderboard</h2>
         </div>
 
         <div class="rank-list-wrapper">
-            <div class="rank-item">
-                <div class="rank-left">
-                    <span class="rank-num">01</span>
-                    <div class="rank-ava ava-1">SA</div>
-                    <div class="rank-name-box">
-                        <span class="rank-name">Siti Aminah</span>
-                        <span class="rank-role">Sekretaris Utama</span>
-                    </div>
-                </div>
-                <div class="rank-score">4.92</div>
-            </div>
+            @php
+                $topRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
+                    ->groupBy('evaluatee_id')
+                    ->with('evaluatee.user')
+                    ->orderByDesc('avg_score')
+                    ->limit(5)
+                    ->get();
+            @endphp
 
-            <div class="rank-item is-me">
+            @foreach($topRankings as $index => $tr)
+            <div class="rank-item {{ auth()->user()->id == ($tr->evaluatee->user_id ?? 0) ? 'is-me' : '' }}">
                 <div class="rank-left">
-                    <span class="rank-num">03</span>
-                    <div class="rank-ava">AF</div>
+                    <span class="rank-num">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                    <div class="rank-ava" style="background-color: {{ '#' . substr(md5($tr->evaluatee->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($tr->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    </div>
                     <div class="rank-name-box">
-                        <span class="rank-name">Ahmad Faisal <span class="badge-me">(Anda)</span></span>
-                        <span class="rank-role">Koordinator Program</span>
+                        <span class="rank-name">
+                            {{ $tr->evaluatee->user->name ?? 'N/A' }} 
+                            @if(auth()->user()->id == ($tr->evaluatee->user_id ?? 0))
+                                <span class="badge-me">(Anda)</span>
+                            @endif
+                        </span>
+                        <span class="rank-role">{{ $tr->evaluatee->division->name ?? 'N/A' }}</span>
                     </div>
                 </div>
-                <div class="rank-score">4.82</div>
+                <div class="rank-score">{{ number_format($tr->avg_score, 2) }}</div>
             </div>
-
-            <div class="rank-item">
-                <div class="rank-left">
-                    <span class="rank-num">04</span>
-                    <div class="rank-ava ava-4">BS</div>
-                    <div class="rank-name-box">
-                        <span class="rank-name">Budi Santoso</span>
-                        <span class="rank-role">Logistik / Perlengkapan</span>
-                    </div>
-                </div>
-                <div class="rank-score">4.75</div>
-            </div>
+            @endforeach
         </div>
 
         <div class="sec-footer">
-            <a href="#" class="btn-link">LIHAT SELURUH PERINGKAT &rarr;</a>
+            <a href="{{ route('ranking.index') }}" class="btn-link">LIHAT SELURUH PERINGKAT &rarr;</a>
         </div>
     </div>
 

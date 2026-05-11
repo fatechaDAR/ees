@@ -176,11 +176,11 @@
     <div class="mu-kpi-grid">
         <div class="mu-kpi-card">
             <div class="kpi-header-row">
-                <div class="mu-kpi-label">JUMLAH PENGGUNA AKTIF</div>
+                <div class="mu-kpi-label">PENGGUNA {{ request('role') ? strtoupper(request('role')) : 'TERDAFTAR' }}</div>
                 <svg class="kpi-corner-icon" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             </div>
             <div class="mu-kpi-val">
-                124 <span class="badge-blue-soft">+12% bulan ini</span>
+                {{ $filteredTotal }} <span class="badge-blue-soft">{{ request('role') ? 'Filtered' : 'Total' }}</span>
             </div>
         </div>
         
@@ -189,38 +189,35 @@
                 <div class="mu-kpi-label">ADMINISTRATOR SISTEM</div>
                 <svg class="kpi-corner-icon" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </div>
-            <div class="mu-kpi-val" style="margin-bottom: 4px;">8</div>
+            <div class="mu-kpi-val" style="margin-bottom: 4px;">{{ $totalAdmin }}</div>
             <div class="mu-kpi-sub">Kontrol akses terbatas diaktifkan</div>
         </div>
 
         <div class="mu-kpi-card">
             <div class="kpi-header-row">
-                <div class="mu-kpi-label">AKTIVITAS RATA-RATA</div>
-                <svg class="kpi-corner-icon" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <div class="mu-kpi-label">ROLE USER</div>
+                <svg class="kpi-corner-icon" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
             </div>
-            <div class="mu-kpi-val" style="margin-bottom: 0;">92%</div>
+            <div class="mu-kpi-val" style="margin-bottom: 0;">Multi-Role</div>
             <div class="kpi-progress-track">
-                <div class="kpi-progress-fill" style="width: 92%;"></div>
+                <div class="kpi-progress-fill" style="width: 100%;"></div>
             </div>
         </div>
     </div>
 
-    <div class="mu-toolbar">
+    <form action="{{ route('user.index') }}" method="GET" class="mu-toolbar" id="filterForm">
         <div class="search-wrapper">
             <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" class="search-input" placeholder="Filter by name, email or department...">
+            <input type="text" name="search" class="search-input" placeholder="Cari nama atau email..." value="{{ request('search') }}">
         </div>
-        <select class="filter-select">
-            <option>All Roles</option>
-            <option>ADMIN</option>
-            <option>EVALUATOR</option>
-            <option>PANITIA</option>
+        <select name="role" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+            <option value="">All Roles</option>
+            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>ADMIN</option>
+            <option value="evaluator" {{ request('role') == 'evaluator' ? 'selected' : '' }}>EVALUATOR</option>
+            <option value="panitia" {{ request('role') == 'panitia' ? 'selected' : '' }}>PANITIA</option>
         </select>
-        <select class="filter-select">
-            <option>Status Aktif</option>
-            <option>Status Inactive</option>
-        </select>
-    </div>
+        <button type="submit" style="display: none;">Cari</button>
+    </form>
 
     <div class="mu-table-card">
         <div class="mu-list-wrapper">
@@ -228,70 +225,40 @@
                 <div>PROFIL PENGGUNA</div>
                 <div>ROLE</div>
                 <div>STATUS</div>
-                <div>AKTIVITAS TERAKHIR</div>
-                <div>ACTIONS</div>
+                <div>AKSI</div>
             </div>
 
+            @forelse($users as $user)
             <div class="mu-list-row">
                 <div class="col-user">
-                    <div class="user-avatar ava-jd">JD</div>
+                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($user->name), 0, 6) }}">
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    </div>
                     <div>
-                        <div class="user-name">Dr. John Doe</div>
-                        <div class="user-email">john.doe@university.edu</div>
+                        <div class="user-name">{{ $user->name }}</div>
+                        <div class="user-email">{{ $user->email }}</div>
                     </div>
                 </div>
-                <div><span class="badge-role role-admin">ADMIN</span></div>
+                <div>
+                    <span class="badge-role {{ $user->role == 'admin' ? 'role-admin' : ($user->role == 'evaluator' ? 'role-evaluator' : 'role-panitia') }}">
+                        {{ strtoupper($user->role) }}
+                    </span>
+                </div>
                 <div class="status-indicator"><span class="dot dot-active"></span> Active</div>
-                <div class="col-activity">2 hours ago</div>
                 <div class="col-actions">
                     <button class="action-btn" title="Edit">✎</button>
                     <button class="action-btn btn-delete" title="Delete">🗑</button>
                 </div>
             </div>
-
-            <div class="mu-list-row">
-                <div class="col-user">
-                    <div class="user-avatar ava-as">AS</div>
-                    <div>
-                        <div class="user-name">Alice Smith, M.Sc.</div>
-                        <div class="user-email">alice.smith@university.edu</div>
-                    </div>
-                </div>
-                <div><span class="badge-role role-evaluator">EVALUATOR</span></div>
-                <div class="status-indicator"><span class="dot dot-active"></span> Active</div>
-                <div class="col-activity">Yesterday</div>
-                <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Delete">🗑</button>
-                </div>
-            </div>
-
-            <div class="mu-list-row">
-                <div class="col-user">
-                    <div class="user-avatar ava-rb">RB</div>
-                    <div>
-                        <div class="user-name">Robert Brown</div>
-                        <div class="user-email">r.brown@university.edu</div>
-                    </div>
-                </div>
-                <div><span class="badge-role role-panitia">PANITIA</span></div>
-                <div class="status-indicator"><span class="dot dot-inactive"></span> Inactive</div>
-                <div class="col-activity">12 days ago</div>
-                <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Delete">🗑</button>
-                </div>
-            </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada data user.</div>
+            @endforelse
         </div>
 
         <div class="mu-pagination">
-            <div class="page-info">Showing 1 to 3 of 124 entries</div>
+            <div class="page-info">Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} entries</div>
             <div class="page-controls">
-                <button class="page-btn" title="Previous">&lt;</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn" title="Next">&gt;</button>
+                {{ $users->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>

@@ -3,6 +3,16 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PanitiaController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\ResultController;
+use App\Http\Controllers\AnomalyController;
+use App\Http\Controllers\RankingController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -24,61 +34,37 @@ Route::post('/login', [AuthController::class, 'authenticate']); // Menerima data
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /* DASHBOARD UTAMA (Saat login suskes) */
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 /* DASHBOARD ADMIN */
-Route::get('/dashboard-admin', function () {
-    return view('dashboard_admin.index');
-})->middleware('auth')->name('dashboard.admin');
+Route::get('/dashboard-admin', [AdminController::class, 'index'])->middleware('auth')->name('dashboard.admin');
 
 /*Manajemen Event*/
-Route::get('/manajemen-event', function () {
-    return view('manajemen_event.index'); // Sesuaikan dengan nama folder baru
-})->name('event.index');
+Route::get('/manajemen-event', [EventController::class, 'index'])->name('event.index');
 
 /*Manajemen Divisi*/
-Route::get('/manajemen-divisi', function () {
-    return view('manajemen_divisi.index');
-})->name('divisi.index');
+Route::get('/manajemen-divisi', [DivisionController::class, 'index'])->name('divisi.index');
 
 /*Manajemen Panitia*/
-Route::get('/manajemen-panitia', function () {
-    return view('manajemen_panitia.index');
-})->name('panitia.index');
+Route::get('/manajemen-panitia', [PanitiaController::class, 'index'])->name('panitia.index');
 
 /*Manajemen User*/
-Route::get('/manajemen-user', function () {
-    return view('manajemen_user.index');
-})->name('user.index');
+Route::get('/manajemen-user', [UserController::class, 'index'])->name('user.index');
 
 /*Monitoring Evaluasi*/
-Route::get('/monitoring-evaluasi', function () {
-    return view('monitoring_evaluasi.index');
-})->name('monitoring.index');
+Route::get('/monitoring-evaluasi', [MonitoringController::class, 'index'])->name('monitoring.index');
 
 /*Hasil Evaluasi*/
-Route::get('/hasil-evaluasi', function () {
-    return view('hasil_evaluasi.index');
-})->name('hasil.index');
+Route::get('/hasil-evaluasi', [ResultController::class, 'index'])->name('hasil.index');
 
 /*Deteksi Anomali*/
-Route::get('/deteksi-anomali', function () {
-    return view('deteksi_anomali.index');
-})->name('anomali.index');
+Route::get('/deteksi-anomali', [AnomalyController::class, 'index'])->name('anomali.index');
 
 /*Ranking*/
-Route::get('/ranking', function () {
-    return view('ranking.index');
-})->name('ranking.index');
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
 /* DASHBOARD PANITIA */
-Route::get('/dashboard-panitia', function () {
-    return view('dashboard_panitia.index');
-})->middleware('auth')->name('dashboard.panitia');
+Route::get('/dashboard-panitia', [\App\Http\Controllers\DashboardPanitiaController::class, 'index'])->middleware('auth')->name('dashboard.panitia');
 
-/* Hasil Evaluasi */
-Route::get('/hasil-evaluasi-panitia', function () {
-    return view('hasil_evaluasi_panitia.index');
-})->name('hasil-panitia.index');
+/* Hasil Evaluasi Panitia */
+Route::get('/hasil-evaluasi-panitia', [PanitiaController::class, 'personalEvaluation'])->middleware('auth')->name('hasil-panitia.index');

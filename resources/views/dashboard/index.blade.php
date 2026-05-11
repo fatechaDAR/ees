@@ -412,7 +412,8 @@
             </div>
             <div class="stat-card__info">
                 <span class="stat-card__title">Total Panitia</span>
-                <span class="stat-card__value">145</span> </div>
+                <span class="stat-card__value">{{ $totalPanitia }}</span>
+            </div>
 
                 <span class="stat-card__trend">
                     Terdaftar Aktif
@@ -424,11 +425,12 @@
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             </div>
             <div class="stat-card__info">
-                <span class="stat-card__title">Event Aktif</span>
-                <span class="stat-card__value">2</span> </div>
+                <span class="stat-card__title">Total Evaluasi</span>
+                <span class="stat-card__value">{{ $totalEvaluasi }}</span>
+            </div>
 
                 <span class="stat-card__trend">
-                    Sedang Berjalan
+                    Semua Evaluasi
                 </span>
         </div>
 
@@ -687,26 +689,64 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse ($evaluasi as $index => $item)
                     <tr>
-                        <td>1</td>
-                        <td><strong>Evaluasi Kinerja Dosen Semester Ganjil</strong></td>
-                        <td>12 Apr 2026</td>
-                        <td><span class="badge badge--success">Selesai</span></td>
+                        <td>{{ $index + 1 }}</td>
+                        <td><strong>{{ $item->event->name ?? '-' }}</strong></td>
+                        <td>{{ $item->created_at->format('d M Y') }}</td>
+                        <td>
+                            @if ($item->final_score !== null)
+                                <span class="badge badge--success">Selesai</span>
+                            @else
+                                <span class="badge badge--warning">Berjalan</span>
+                            @endif
+                        </td>
                         <td><a href="#" class="btn-link">Lihat Detail</a></td>
                     </tr>
-                    
+                    @empty
                     <tr>
-                        <td>2</td>
-                        <td><strong>Evaluasi Layanan Fasilitas Kampus</strong></td>
-                        <td>15 Apr 2026</td>
-                        <td><span class="badge badge--warning">Berjalan</span></td>
-                        <td><a href="#" class="btn-link">Lihat Detail</a></td>
+                        <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 24px;">Belum ada data evaluasi.</td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+    </div>
 
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Daftar Panitia Terdaftar</h3>
         </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Panitia</th>
+                        <th>Email</th>
+                        <th>Tanggal Bergabung</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($dataPanitia as $index => $panitia)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td><strong>{{ $panitia->name }}</strong></td>
+                        <td>{{ $panitia->email }}</td>
+                        <td>{{ $panitia->created_at->format('d M Y') }}</td>
+                        <td><a href="#" class="btn-link">Detail</a></td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 24px;">Belum ada data panitia.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
         <footer class="dashboard-footer">
             &copy; 2026 Sistem Evaluasi Panitia Event Kampus
         </footer>

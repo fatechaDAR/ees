@@ -169,26 +169,32 @@
     <div class="mp-kpi-grid">
         <div class="mp-kpi-card">
             <div class="mp-kpi-label">TOTAL PANITIA</div>
-            <div class="mp-kpi-val">128</div>
-            <div class="mp-kpi-sub text-green">↑ +12 dari bulan lalu</div>
+            <div class="mp-kpi-val">{{ $totalPanitia }}</div>
+            <div class="mp-kpi-sub text-green">Terdaftar di sistem</div>
         </div>
         <div class="mp-kpi-card">
             <div class="mp-kpi-label">DIVISI AKTIF</div>
-            <div class="mp-kpi-val">8</div>
-            <div class="mp-kpi-sub text-muted-alt">Kominfo, Acara, Humas...</div>
+            <div class="mp-kpi-val">{{ $totalDivisi }}</div>
+            <div class="mp-kpi-sub text-muted-alt">Semua divisi event</div>
         </div>
         <div class="mp-kpi-card">
             <div class="mp-kpi-label">EVALUASI TERTUNDA</div>
-            <div class="mp-kpi-val">14</div>
-            <div class="mp-kpi-sub text-red">
+            <div class="mp-kpi-val">{{ $pendingEvaluations }}</div>
+            <div class="mp-kpi-sub {{ $pendingEvaluations > 0 ? 'text-red' : 'text-green' }}">
+                @if($pendingEvaluations > 0)
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                 Perlu Tindakan
+                @else
+                Semua Selesai
+                @endif
             </div>
         </div>
         <div class="mp-kpi-card">
             <div class="mp-kpi-label">RERATA PERFORMA</div>
-            <div class="mp-kpi-val">4.8 <span style="font-size: 1.2rem; color: var(--text-muted);">/ 5</span></div>
-            <div class="mp-kpi-sub text-primary">Sangat Baik</div>
+            <div class="mp-kpi-val">{{ number_format($avgPerformance, 1) }} <span style="font-size: 1.2rem; color: var(--text-muted);">/ 5</span></div>
+            <div class="mp-kpi-sub text-primary">
+                {{ $avgPerformance >= 4.0 ? 'Sangat Baik' : ($avgPerformance >= 3.0 ? 'Baik' : 'Cukup') }}
+            </div>
         </div>
     </div>
 
@@ -210,82 +216,48 @@
                 <div>AKSI</div>
             </div>
 
+            @forelse ($panitiaList as $panitia)
             <div class="mp-list-row">
                 <div class="col-user">
-                    <div class="user-avatar ava-1">AP</div>
+                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($panitia->name), 0, 6) }}">
+                        {{ strtoupper(substr($panitia->name, 0, 2)) }}
+                    </div>
                     <div>
-                        <div class="user-name">Aditya Pratama</div>
-                        <div class="user-id">ID: PNT-001</div>
+                        <div class="user-name">{{ $panitia->name }}</div>
+                        <div class="user-id">ID: PNT-{{ str_pad($panitia->id, 3, '0', STR_PAD_LEFT) }}</div>
                     </div>
                 </div>
-                <div class="col-divisi">Koordinator Acara</div>
-                <div class="col-email">aditya.pratama@univ.ac.id</div>
-                <div><span class="badge badge-lead">LEAD</span></div>
+                <div class="col-divisi">
+                    @if($panitia->committeeMembers->isNotEmpty())
+                        {{ $panitia->committeeMembers->first()->division->name ?? 'Belum ada Divisi' }}
+                    @else
+                        Belum ada Divisi
+                    @endif
+                </div>
+                <div class="col-email">{{ $panitia->email }}</div>
+                <div>
+                    @if($panitia->committeeMembers->isNotEmpty())
+                        <span class="badge badge-lead">{{ strtoupper($panitia->committeeMembers->first()->position ?? 'Member') }}</span>
+                    @else
+                        <span class="badge badge-member">MEMBER</span>
+                    @endif
+                </div>
                 <div class="col-actions">
                     <button class="action-btn" title="Edit">✎</button>
                     <button class="action-btn btn-delete" title="Hapus">🗑</button>
                 </div>
             </div>
-
-            <div class="mp-list-row">
-                <div class="col-user">
-                    <div class="user-avatar ava-2">SR</div>
-                    <div>
-                        <div class="user-name">Siti Rahmawati</div>
-                        <div class="user-id">ID: PNT-002</div>
-                    </div>
-                </div>
-                <div class="col-divisi">Sekretariat</div>
-                <div class="col-email">s.rahmawati@univ.ac.id</div>
-                <div><span class="badge badge-member">MEMBER</span></div>
-                <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Hapus">🗑</button>
-                </div>
+            @empty
+            <div class="mp-list-row" style="grid-template-columns: 1fr; text-align: center; color: var(--text-muted); padding: 40px;">
+                Belum ada data panitia yang terdaftar.
             </div>
-
-            <div class="mp-list-row">
-                <div class="col-user">
-                    <div class="user-avatar ava-3">BS</div>
-                    <div>
-                        <div class="user-name">Budi Santoso</div>
-                        <div class="user-id">ID: PNT-003</div>
-                    </div>
-                </div>
-                <div class="col-divisi">Humas & Publidok</div>
-                <div class="col-email">budi.s@univ.ac.id</div>
-                <div><span class="badge badge-member">MEMBER</span></div>
-                <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Hapus">🗑</button>
-                </div>
-            </div>
-
-            <div class="mp-list-row">
-                <div class="col-user">
-                    <div class="user-avatar ava-4">DL</div>
-                    <div>
-                        <div class="user-name">Dewi Lestari</div>
-                        <div class="user-id">ID: PNT-004</div>
-                    </div>
-                </div>
-                <div class="col-divisi">Bendahara Umum</div>
-                <div class="col-email">dewi.lestari@univ.ac.id</div>
-                <div><span class="badge badge-lead">LEAD</span></div>
-                <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Hapus">🗑</button>
-                </div>
-            </div>
+            @endforelse
         </div>
 
         <div class="mp-pagination">
-            <div class="page-info">Menampilkan 4 dari 128 panitia</div>
+            <div class="page-info">Menampilkan {{ $panitiaList->firstItem() ?? 0 }} sampai {{ $panitiaList->lastItem() ?? 0 }} dari {{ $panitiaList->total() }} panitia</div>
             <div class="page-controls">
-                <div class="page-btn active">1</div>
-                <div class="page-btn">2</div>
-                <div class="page-btn">3</div>
-                <div class="page-btn">&gt;</div>
+                {{ $panitiaList->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>

@@ -137,33 +137,28 @@
         <div class="card-kpi">
             <div class="kpi-label">RATA-RATA NILAI</div>
             <div class="kpi-value-row">
-                <span class="kpi-value">4.2</span>
+                <span class="kpi-value">{{ number_format($avgScore, 1) }}</span>
                 <span class="kpi-sub">/ 5.0</span>
             </div>
             <div class="kpi-trend">
-                <span>↑</span> + 0.3 dari bulan lalu
+                <span>↑</span> Performa Keseluruhan
             </div>
         </div>
 
         <div class="card-kpi">
             <div class="kpi-label">JUMLAH EVALUASI</div>
-            <div class="kpi-value">120</div>
+            <div class="kpi-value">{{ $totalEvaluasi }}</div>
             <div class="avatar-stack">
-                <div style="display: flex;">
-                    <div class="av-stack-item"></div>
-                    <div class="av-stack-item" style="background:#cbd5e1;"></div>
-                    <div class="av-stack-item" style="background:#94a3b8;"></div>
-                </div>
-                <span class="av-stack-text">Diverifikasi oleh tim ahli</span>
+                <span class="av-stack-text">Total evaluasi masuk</span>
             </div>
         </div>
 
         <div class="card-kpi maroon">
             <svg style="position: absolute; right: 20px; top: 20px; width: 60px; height: 60px; opacity: 0.1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div class="kpi-label">PROGRESS PENILAIAN</div>
-            <div class="kpi-value">75%</div>
+            <div class="kpi-value">{{ $progress }}%</div>
             <p style="margin: 12px 0 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 500;">
-                15 event teratasi untuk tahun ajaran ini.
+                Berdasarkan evaluasi yang sudah dinilai.
             </p>
         </div>
     </div>
@@ -176,30 +171,15 @@
             </div>
             
             <div class="bar-chart-container">
+                @forelse($eventScores as $es)
                 <div class="bar-wrapper">
-                    <span class="bar-value">4.1</span>
-                    <div class="bar" style="height: 82%; background: rgba(121, 33, 49, 0.4);"></div>
-                    <span class="bar-label">WISUDA<br>2025</span>
+                    <span class="bar-value">{{ number_format($es->avg_score, 1) }}</span>
+                    <div class="bar" style="height: {{ ($es->avg_score / 5) * 100 }}%; background: {{ $es->avg_score > 4 ? 'var(--primary-color)' : 'rgba(121, 33, 49, 0.4)' }};"></div>
+                    <span class="bar-label">{{ strtoupper(substr($es->event->name ?? 'EVENT', 0, 10)) }}</span>
                 </div>
-                <div class="bar-wrapper">
-                    <span class="bar-value">4.6</span>
-                    <div class="bar" style="height: 92%; background: rgba(121, 33, 49, 0.6);"></div>
-                    <span class="bar-label">DIES<br>NATALIS</span>
-                </div>
-                <div class="bar-wrapper">
-                    <span class="bar-value">4.9</span>
-                    <div class="bar" style="height: 98%; background: var(--primary-color);"></div> <span class="bar-label">ART<br>FEST</span>
-                </div>
-                <div class="bar-wrapper">
-                    <span class="bar-value">3.5</span>
-                    <div class="bar" style="height: 70%; background: rgba(121, 33, 49, 0.2);"></div>
-                    <span class="bar-label">SEMINAR<br>IT</span>
-                </div>
-                <div class="bar-wrapper">
-                    <span class="bar-value">4.2</span>
-                    <div class="bar" style="height: 84%; background: rgba(121, 33, 49, 0.4);"></div>
-                    <span class="bar-label">JOB<br>FAIR</span>
-                </div>
+                @empty
+                <div style="width: 100%; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Belum ada data event.</div>
+                @endforelse
             </div>
         </div>
 
@@ -207,26 +187,26 @@
             <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-dark); text-align: center;">Distribusi Kategori Nilai</h3>
             <div class="donut-chart">
                 <div class="donut-hole">
-                    <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">120</span>
+                    <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">{{ $totalEvaluasi }}</span>
                     <span style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">TOTAL</span>
                 </div>
             </div>
             <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-dark);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span> Sangat Baik</div>
-                    <span style="font-weight: 700;">45%</span>
+                    <span style="font-weight: 700;">{{ $distribusi['sangat_baik'] }}%</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #3b82f6;"></span> Baik</div>
-                    <span style="font-weight: 700;">30%</span>
+                    <span style="font-weight: 700;">{{ $distribusi['baik'] }}%</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b;"></span> Cukup</div>
-                    <span style="font-weight: 700;">15%</span>
+                    <span style="font-weight: 700;">{{ $distribusi['cukup'] }}%</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></span> Kurang</div>
-                    <span style="font-weight: 700;">10%</span>
+                    <span style="font-weight: 700;">{{ $distribusi['kurang'] }}%</span>
                 </div>
             </div>
         </div>
@@ -240,44 +220,28 @@
     </div>
 
     <div class="rank-list">
+        @forelse($topPanitia as $index => $rank)
         <div class="rank-row">
-            <div class="rank-badge-col"><div class="rank-badge rank-1">1</div></div>
+            <div class="rank-badge-col"><div class="rank-badge {{ 'rank-' . ($index + 1) }}">{{ $index + 1 }}</div></div>
             <div class="rank-profile">
-                <div class="rank-avatar avatar-1">AS</div>
+                <div class="rank-avatar {{ 'avatar-' . ($index + 1) }}">
+                    {{ strtoupper(substr($rank->evaluatee->user->name ?? '?', 0, 2)) }}
+                </div>
                 <div class="rank-info">
-                    <span class="rank-name">Aditya Saputra</span>
-                    <span class="rank-email">aditya.s@campus.ac.id</span>
+                    <span class="rank-name">{{ $rank->evaluatee->user->name ?? 'Unknown' }}</span>
+                    <span class="rank-email">{{ $rank->evaluatee->user->email ?? '-' }}</span>
                 </div>
             </div>
-            <div class="rank-divisi"><span class="divisi-pill">LOGISTIK</span></div>
-            <div class="rank-score">4.92</div>
-        </div>
-
-        <div class="rank-row">
-            <div class="rank-badge-col"><div class="rank-badge rank-2">2</div></div>
-            <div class="rank-profile">
-                <div class="rank-avatar avatar-2">DP</div>
-                <div class="rank-info">
-                    <span class="rank-name">Dewi Pertiwi</span>
-                    <span class="rank-email">dewi.p@campus.ac.id</span>
-                </div>
+            <div class="rank-divisi">
+                <span class="divisi-pill">{{ strtoupper($rank->evaluatee->division->name ?? 'UMUM') }}</span>
             </div>
-            <div class="rank-divisi"><span class="divisi-pill">ACARA</span></div>
-            <div class="rank-score">4.88</div>
+            <div class="rank-score">{{ number_format($rank->avg_score, 2) }}</div>
         </div>
-
-        <div class="rank-row">
-            <div class="rank-badge-col"><div class="rank-badge rank-3">3</div></div>
-            <div class="rank-profile">
-                <div class="rank-avatar avatar-3">RA</div>
-                <div class="rank-info">
-                    <span class="rank-name">Rizky Ananda</span>
-                    <span class="rank-email">rizky.a@campus.ac.id</span>
-                </div>
-            </div>
-            <div class="rank-divisi"><span class="divisi-pill">HUMAS</span></div>
-            <div class="rank-score">4.75</div>
+        @empty
+        <div style="padding: 24px; text-align: center; color: var(--text-muted);">
+            Belum ada data ranking tersedia.
         </div>
+        @endforelse
     </div>
 
     <div class="rank-footer">

@@ -175,16 +175,16 @@
         <div class="em-kpi-card">
             <div class="em-kpi-label">JUMLAH ACARA YANG SEDANG BERLANGSUNG</div>
             <div class="em-kpi-value">
-                12 <span class="em-kpi-sub">↑ +2 bulan ini</span>
+                {{ $activeEvents }} <span class="em-kpi-sub">Aktif</span>
             </div>
         </div>
         <div class="em-kpi-card">
             <div class="em-kpi-label">SELESAI</div>
-            <div class="em-kpi-value">148</div>
+            <div class="em-kpi-value">{{ $completedEvents }}</div>
         </div>
         <div class="em-kpi-card">
             <div class="em-kpi-label">PERINGKAT RATA-RATA</div>
-            <div class="em-kpi-value">4.8</div>
+            <div class="em-kpi-value">{{ number_format($avgRating, 1) }}</div>
         </div>
     </div>
 
@@ -205,59 +205,32 @@
                 <div>ACTIONS</div>
             </div>
 
+            @forelse($events as $event)
             <div class="em-list-row">
                 <div class="col-name-wrapper">
                     <div class="event-icon-box">
                         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <div>
-                        <div class="event-name">International Symposium 2024</div>
-                        <div class="event-dept">Academic Affairs Department</div>
+                        <div class="event-name">{{ $event->name }}</div>
+                        <div class="event-dept">{{ $event->description }}</div>
                     </div>
                 </div>
-                <div class="col-date">Oct 24 – 26, 2024</div>
-                <div><span class="badge badge-active">ACTIVE</span></div>
+                <div class="col-date">
+                    {{ \Carbon\Carbon::parse($event->start_date)->format('M d') }} – {{ \Carbon\Carbon::parse($event->end_date)->format('d, Y') }}
+                </div>
+                <div><span class="badge {{ $event->status == 'active' ? 'badge-active' : 'badge-completed' }}">{{ strtoupper($event->status) }}</span></div>
                 <div class="col-actions">
                     <button class="action-btn btn-edit" title="Edit">✎</button>
                     <button class="action-btn btn-delete" title="Delete">🗑</button>
                 </div>
             </div>
+            @empty
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">Belum ada data event.</div>
+            @endforelse
 
-            <div class="em-list-row">
-                <div class="col-name-wrapper">
-                    <div class="event-icon-box">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <div>
-                        <div class="event-name">University Sports Week</div>
-                        <div class="event-dept">Student Executive Body</div>
-                    </div>
-                </div>
-                <div class="col-date">Sep 12 – 19, 2024</div>
-                <div><span class="badge badge-completed">COMPLETED</span></div>
-                <div class="col-actions">
-                    <button class="action-btn btn-edit" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Delete">🗑</button>
-                </div>
-            </div>
-
-            <div class="em-list-row">
-                <div class="col-name-wrapper">
-                    <div class="event-icon-box">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <div>
-                        <div class="event-name">Annual Innovation Fair</div>
-                        <div class="event-dept">Research & Development</div>
-                    </div>
-                </div>
-                <div class="col-date">Nov 05, 2024</div>
-                <div><span class="badge badge-active">ACTIVE</span></div>
-                <div class="col-actions">
-                    <button class="action-btn btn-edit" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Delete">🗑</button>
-                </div>
-            </div>
+        </div>
+    </div>
 
         </div>
     </div>
