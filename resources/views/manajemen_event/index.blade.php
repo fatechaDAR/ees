@@ -165,7 +165,7 @@
             <h1 class="em-title">Management Event</h1>
             <p class="em-desc">Mengawasi dan mengevaluasi kegiatan akademik, melacak metrik kinerja, dan menjaga keunggulan institusi di seluruh departemen.</p>
         </div>
-        <button class="btn-add-event">
+        <button class="btn-add-event" onclick="toggleModal('modalEvent', true)">
             <span class="plus-circle">+</span>
             Tambah Event
         </button>
@@ -239,4 +239,218 @@
         &copy; 2026 Sistem Evaluasi Panitia Event Kampus
     </footer>
 </div>
+
+<style>
+    /* =========================================
+       STYLE MODAL (POPUP) TAMBAH/EDIT EVENT
+       ========================================= */
+    /* Overlay Latar Belakang Gelap/Blur */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(31, 41, 55, 0.6); /* Warna gelap transparan */
+        backdrop-filter: blur(4px); /* Efek blur modern */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        
+        /* Default sembunyi. Akan aktif jika ada class 'active' */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Kontainer Utama Modal */
+    .modal-content {
+        background-color: var(--bg-white);
+        width: 100%;
+        max-width: 500px;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        
+        /* Animasi turun dari atas */
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
+
+    /* --- Header Modal --- */
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0;
+    }
+    .btn-close {
+        background: none; border: none;
+        color: var(--text-muted); cursor: pointer;
+        display: flex; justify-content: center; align-items: center;
+        padding: 4px; border-radius: 50%; transition: 0.2s;
+    }
+    .btn-close:hover {
+        background-color: var(--bg-layout);
+        color: var(--text-dark);
+    }
+
+    /* --- Body (Form Inputs) --- */
+    .modal-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+        font-size: 0.85rem; font-weight: 700; color: var(--text-dark);
+    }
+    .form-label span.required { color: #ef4444; }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem; color: var(--text-dark);
+        background-color: var(--bg-white);
+        outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--primary-color); }
+    .form-input::placeholder { color: var(--text-placeholder); }
+
+    /* Validasi Error State */
+    .form-group.has-error .form-input {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+    }
+    .error-msg {
+        font-size: 0.75rem; color: #ef4444; font-weight: 600;
+        display: none; /* Default sembunyi */
+    }
+    .form-group.has-error .error-msg { display: block; }
+
+    /* Info Box / Catatan */
+    .info-box {
+        background-color: #eff6ff; /* Biru muda */
+        border-left: 4px solid #3b82f6;
+        padding: 12px 16px; border-radius: 4px;
+        display: flex; gap: 12px; align-items: flex-start;
+        margin-top: 8px;
+    }
+    .info-icon { color: #3b82f6; flex-shrink: 0; margin-top: 2px; }
+    .info-text { font-size: 0.8rem; color: #1e3a8a; line-height: 1.5; margin: 0; }
+    .info-text strong { font-weight: 700; }
+
+    /* --- Footer (Actions) --- */
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-light);
+        background-color: var(--bg-layout);
+        border-bottom-left-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg);
+        display: flex; justify-content: flex-end; gap: 12px;
+    }
+    
+    .btn-secondary {
+        background-color: var(--bg-white); color: var(--text-dark);
+        border: 1px solid var(--border-light); padding: 10px 20px;
+        border-radius: var(--radius-md); font-weight: 700; font-size: 0.85rem;
+        cursor: pointer; transition: 0.2s;
+    }
+    .btn-secondary:hover { background-color: #f1f5f9; }
+    
+    .btn-primary {
+        background-color: var(--primary-color); color: var(--bg-white);
+        border: none; padding: 10px 24px; border-radius: var(--radius-md);
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.3s ease;
+        box-shadow: 0 4px 6px rgba(121, 33, 49, 0.2);
+    }
+    .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(121, 33, 49, 0.3); }
+
+</style>
+
+<div id="modalEvent" class="modal-overlay">
+    <div class="modal-content">
+        
+        <div class="modal-header">
+            <h2 class="modal-title">Tambah / Edit Event</h2>
+            <button class="btn-close" onclick="toggleModal('modalEvent', false)">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group has-error">
+                <label class="form-label">Nama Event <span class="required">*</span></label>
+                
+                <input 
+                    type="text" 
+                    class="form-input" 
+                    placeholder="Contoh: Orientasi Mahasiswa Baru" 
+                    required
+                    oninput="this.parentElement.classList.remove('has-error')"
+                >
+                
+                <span class="error-msg">Field ini wajib diisi</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tanggal Event</label>
+                <input type="date" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Status Event</label>
+                <select class="form-select">
+                    <option value="aktif" selected>Aktif</option>
+                    <option value="selesai">Selesai</option>
+                </select>
+            </div>
+
+            <div class="info-box">
+                <svg class="info-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <p class="info-text">
+                    <strong>Catatan Penting:</strong> Pastikan nama event sesuai dengan dokumen akademik resmi. Perubahan status menjadi "Selesai" akan mengunci seluruh akses penilaian panitia secara permanen.
+                </p>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="toggleModal('modalEvent', false)">Batal</button>
+            <button class="btn-primary" onclick="toggleModal('modalEvent', false)">Simpan</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Fungsi sederhana untuk membuka & menutup modal
+    function toggleModal(modalID, isShow) {
+        const modal = document.getElementById(modalID);
+        if(isShow) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+</script>
 @endsection

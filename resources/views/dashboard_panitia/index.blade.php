@@ -293,7 +293,7 @@
                     @endif
                 </div>
                 <div>
-                    <button class="btn-eval">{{ $eval->final_score ? 'LIHAT' : 'EVALUASI' }}</button>
+                    <button class="btn-eval" onclick="toggleModalEval('modalEvaluasi', true)">{{ $eval->final_score ? 'LIHAT' : 'EVALUASI' }}</button>
                 </div>
             </div>
             @empty
@@ -314,4 +314,216 @@
     </footer>
 
 </div>
+
+<style>
+    /* =========================================
+       STYLE MODAL (POPUP) EVALUASI PANITIA
+       ========================================= */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(31, 41, 55, 0.6); backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 1000; opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+
+    .modal-eval-content {
+        background-color: var(--bg-white); width: 100%; max-width: 550px;
+        border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        display: flex; flex-direction: column; max-height: 90vh;
+        transform: translateY(-20px); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-eval-content { transform: translateY(0); }
+
+    /* --- Header --- */
+    .modal-header {
+        padding: 24px; border-bottom: 1px solid var(--border-light); position: relative;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 4px 0; }
+    .modal-subtitle { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; margin: 0; }
+    
+    .btn-close {
+        position: absolute; top: 24px; right: 24px; background: none; border: none;
+        color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 50%; transition: 0.2s;
+    }
+    .btn-close:hover { background-color: var(--bg-layout); color: var(--text-dark); }
+
+    /* --- Body (Scrollable) --- */
+    .modal-body {
+        padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
+    }
+
+    /* Alert Box Warning */
+    .alert-warning {
+        background-color: #fdf2f8; border: 1px solid #fbcfe8; border-radius: var(--radius-md);
+        padding: 12px 16px; display: flex; gap: 12px; align-items: center; transition: 0.3s;
+    }
+    .alert-icon { color: #be185d; flex-shrink: 0; width: 20px; height: 20px; }
+    .alert-text { font-size: 0.85rem; color: #9d174d; font-weight: 600; margin: 0; }
+
+    /* Rating Group */
+    .rating-group { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: var(--radius-md); border: 1px solid transparent; transition: 0.3s; }
+    
+    /* State Error untuk Kriteria Kosong */
+    .rating-group.has-error { background-color: #fef2f2; border-color: #fecaca; }
+
+    .rating-header { display: flex; justify-content: space-between; align-items: center; }
+    .rating-title { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); }
+    .req-label { font-size: 0.75rem; font-weight: 800; color: #ef4444; }
+
+    /* Star Interaction */
+    .stars-container { display: flex; gap: 4px; cursor: pointer; margin-top: 4px; }
+    .star-btn { width: 28px; height: 28px; color: #e2e8f0; transition: 0.2s; }
+    .star-btn.filled { color: var(--primary-color); }
+    .star-btn:hover { transform: scale(1.1); }
+
+    .rating-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-top: 4px; }
+
+    /* Textarea Feedback */
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-size: 0.85rem; font-weight: 800; color: var(--text-dark); }
+    .form-textarea {
+        width: 100%; padding: 12px 14px; border: 1px solid var(--border-light);
+        border-radius: var(--radius-md); font-family: 'Inter', sans-serif;
+        font-size: 0.9rem; color: var(--text-dark); outline: none; resize: vertical; min-height: 100px; transition: 0.2s;
+    }
+    .form-textarea:focus { border-color: var(--primary-color); }
+    .form-textarea::placeholder { color: var(--text-placeholder); }
+
+    /* --- Footer --- */
+    .modal-footer {
+        padding: 16px 24px; border-top: 1px solid var(--border-light);
+        background-color: var(--bg-white); display: flex; justify-content: flex-end; gap: 12px;
+        border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg);
+    }
+    .btn-secondary {
+        background-color: var(--bg-layout); color: var(--text-muted);
+        border: 1px solid var(--border-light); padding: 10px 20px;
+        border-radius: 30px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+    }
+    .btn-secondary:hover { background-color: var(--border-light); color: var(--text-dark); }
+    
+    .btn-primary {
+        background-color: var(--primary-color); color: var(--bg-white);
+        border: none; padding: 10px 24px; border-radius: 30px;
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.3s ease; box-shadow: 0 4px 6px rgba(121, 33, 49, 0.2);
+    }
+    .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(121, 33, 49, 0.3); }
+</style>
+
+<div id="modalEvaluasi" class="modal-overlay">
+    <div class="modal-eval-content">
+        
+        <div class="modal-header">
+            <h2 class="modal-title">Formulir Evaluasi Panitia</h2>
+            <p class="modal-subtitle">Berikan penilaian objektif berdasarkan kinerja panitia di lapangan.</p>
+            <button class="btn-close" onclick="toggleModalEval('modalEvaluasi', false)">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            
+            <div id="evalAlert" class="alert-warning">
+                <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                <p class="alert-text">Beberapa bidang penilaian wajib diisi sebelum mengirimkan formulir.</p>
+            </div>
+
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="rating-title">Kerja Sama (Cooperation)</span>
+                </div>
+                <div class="stars-container">
+                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>
+                <div class="rating-desc">Kemampuan berkoordinasi dengan anggota tim lainnya.</div>
+            </div>
+
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="rating-title">Disiplin (Discipline)</span>
+                </div>
+                <div class="stars-container">
+                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>
+                <div class="rating-desc">Ketepatan waktu dan kepatuhan terhadap protokol kepanitiaan.</div>
+            </div>
+
+            <div class="rating-group has-error">
+                <div class="rating-header">
+                    <span class="rating-title">Tanggung Jawab (Responsibility)</span>
+                    <span class="req-label">* Wajib</span>
+                </div>
+                <div class="stars-container">
+                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>
+                <div class="rating-desc">Penyelesaian tugas yang diberikan sesuai target yang ditetapkan.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Feedback/Komentar</label>
+                <textarea class="form-textarea" placeholder="Tulis feedback untuk panitia..."></textarea>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="toggleModalEval('modalEvaluasi', false)">Batal</button>
+            <button class="btn-primary" onclick="toggleModalEval('modalEvaluasi', false)">Submit Penilaian</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 1. Fungsi Buka Tutup Modal Evaluasi
+    function toggleModalEval(modalID, isShow) {
+        const modal = document.getElementById(modalID);
+        if(isShow) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    // 2. Fungsi Interaktif Klik Bintang
+    function setRating(clickedStar, ratingValue) {
+        // Cari pembungkus bintang-bintang tersebut
+        const container = clickedStar.closest('.stars-container');
+        const stars = container.querySelectorAll('.star-btn');
+        
+        // Warnai bintang sesuai urutan yang diklik
+        stars.forEach((star, index) => {
+            if (index < ratingValue) {
+                star.classList.add('filled');
+            } else {
+                star.classList.remove('filled');
+            }
+        });
+
+        // Hapus background merah (error state) pada kriteria ini
+        const group = clickedStar.closest('.rating-group');
+        group.classList.remove('has-error');
+
+        // Sembunyikan Alert Box di atas jika sudah tidak ada error
+        const alertBox = document.getElementById('evalAlert');
+        if(alertBox) {
+            alertBox.style.opacity = '0';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 300);
+        }
+    }
+</script>
     @endsection

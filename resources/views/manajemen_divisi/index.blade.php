@@ -167,7 +167,7 @@
                 Dies Natalis ke-60
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <button class="btn-add">
+            <button class="btn-add" onclick="toggleModal('modalDivisi', true)">
                 <span class="plus-icon">+</span>
                 Tambah Divisi
             </button>
@@ -254,4 +254,175 @@
     </footer>
 
 </div>
+
+<style>
+    /* =========================================
+       STYLE MODAL (POPUP) TAMBAH/EDIT DIVISI
+       ========================================= */
+    /* Overlay Latar Belakang Gelap/Blur */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(31, 41, 55, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 1000;
+        
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+
+    /* Kontainer Utama Modal */
+    .modal-content {
+        background-color: var(--bg-white);
+        width: 100%; max-width: 520px;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        display: flex; flex-direction: column;
+        transform: translateY(-20px); transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+
+    /* --- Header Modal --- */
+    .modal-header {
+        padding: 24px; border-bottom: 1px solid var(--border-light);
+        position: relative;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 8px 0; }
+    
+    .badge-event-context {
+        display: inline-flex; align-items: center; gap: 6px;
+        background-color: #1e3a8a; /* Biru Tua */
+        color: white; padding: 4px 12px; border-radius: 20px;
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+    }
+
+    .btn-close {
+        position: absolute; top: 20px; right: 24px;
+        background: none; border: none; color: var(--text-muted); cursor: pointer;
+        display: flex; justify-content: center; align-items: center;
+        padding: 4px; border-radius: 50%; transition: 0.2s;
+    }
+    .btn-close:hover { background-color: var(--bg-layout); color: var(--text-dark); }
+
+    /* --- Body (Form Inputs & Callout) --- */
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
+
+    /* Input dengan Ikon Alert di Dalam */
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    .form-input {
+        width: 100%; padding: 10px 14px; border: 1px solid var(--border-light);
+        border-radius: var(--radius-md); font-family: 'Inter', sans-serif;
+        font-size: 0.9rem; color: var(--text-dark); outline: none; transition: 0.2s;
+    }
+    .form-input:focus { border-color: var(--primary-color); }
+    .form-input::placeholder { color: var(--text-placeholder); }
+
+    /* State Error Validasi */
+    .icon-alert {
+        position: absolute; right: 12px; color: #ef4444;
+        width: 20px; height: 20px; display: none;
+    }
+    .error-msg { font-size: 0.75rem; color: #ef4444; font-weight: 600; display: none; }
+    
+    /* Trigger saat parent punya class 'has-error' */
+    .form-group.has-error .form-input { border-color: #ef4444; background-color: #fef2f2; padding-right: 40px; }
+    .form-group.has-error .icon-alert { display: block; }
+    .form-group.has-error .error-msg { display: block; }
+
+    /* Callout Box (Catatan Editorial) */
+    .callout-box {
+        background-color: #f3f4f6; /* Abu-abu muda */
+        padding: 16px; border-radius: var(--radius-md);
+        display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon { color: #f97316; flex-shrink: 0; width: 24px; height: 24px; } /* Aksen Oranye Muda */
+    .callout-content { display: flex; flex-direction: column; gap: 4px; }
+    .callout-title { font-size: 0.75rem; font-weight: 800; color: var(--text-dark); text-transform: uppercase; margin: 0; letter-spacing: 0.5px;}
+    .callout-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+    /* --- Footer (Actions) --- */
+    .modal-footer {
+        padding: 16px 24px; border-top: 1px solid var(--border-light);
+        background-color: var(--bg-white); border-bottom-left-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg); display: flex; justify-content: flex-end; gap: 12px;
+    }
+    .btn-secondary {
+        background-color: var(--bg-layout); color: var(--text-dark);
+        border: 1px solid var(--border-light); padding: 10px 20px;
+        border-radius: 30px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+    }
+    .btn-secondary:hover { background-color: var(--border-light); }
+    
+    .btn-primary {
+        background-color: var(--primary-color); color: var(--bg-white);
+        border: none; padding: 10px 24px; border-radius: 30px;
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.3s ease;
+        box-shadow: 0 4px 6px rgba(121, 33, 49, 0.2);
+    }
+    .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(121, 33, 49, 0.3); }
+</style>
+
+<div id="modalDivisi" class="modal-overlay">
+    <div class="modal-content">
+        
+        <div class="modal-header">
+            <button class="btn-close" onclick="toggleModal('modalDivisi', false)">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="modal-title">Tambah / Edit Divisi</h2>
+            <div class="badge-event-context">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                EVENT AKTIF: DIES NATALIS 64
+            </div>
+        </div>
+
+        <div class="modal-body">
+            
+            <div class="form-group has-error">
+                <label class="form-label">Nama Divisi</label>
+                <div class="input-wrapper">
+                    <input type="text" class="form-input" placeholder="contoh: Divisi Acara" 
+                           oninput="this.closest('.form-group').classList.remove('has-error')">
+                    
+                    <svg class="icon-alert" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                </div>
+                <span class="error-msg">Nama divisi harus minimal 3 karakter.</span>
+            </div>
+
+            <div class="callout-box">
+                <svg class="callout-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="callout-content">
+                    <h4 class="callout-title">Catatan Editorial</h4>
+                    <p class="callout-text">Nama divisi akan muncul pada sertifikat kepanitiaan dan laporan akhir evaluasi. Pastikan penulisan sesuai dengan SK Rektor.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="toggleModal('modalDivisi', false)">Batal</button>
+            <button class="btn-primary" onclick="toggleModal('modalDivisi', false)">Simpan Perubahan</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Fungsi sederhana untuk membuka & menutup modal
+    function toggleModal(modalID, isShow) {
+        const modal = document.getElementById(modalID);
+        if(isShow) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+</script>
 @endsection

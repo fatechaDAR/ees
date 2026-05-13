@@ -68,3 +68,54 @@ Route::get('/dashboard-panitia', [\App\Http\Controllers\DashboardPanitiaControll
 
 /* Hasil Evaluasi Panitia */
 Route::get('/hasil-evaluasi-panitia', [PanitiaController::class, 'personalEvaluation'])->middleware('auth')->name('hasil-panitia.index');
+
+//cek desain UI Panitia
+Route::get('/cek-desain-panitia', function () {
+    
+    // 1. Kita buat array data orangnya dulu
+    $dataOrang = [
+        (object) [
+            'nama' => 'Arya Mahendra',
+            'divisi' => 'Acara',
+            'status' => 'Sudah Dinilai',
+            'final_score' => 4.8
+        ],
+        (object) [
+            'nama' => 'Siska Putri',
+            'divisi' => 'Humas',
+            'status' => 'Belum Dinilai',
+            'final_score' => null
+        ],
+        (object) [
+            'nama' => 'Raka Kusuma',
+            'divisi' => 'Logistik',
+            'status' => 'Sudah Dinilai',
+            'final_score' => 4.2
+        ]
+    ];
+
+    // 2. Kita sulap array tadi jadi Paginator Palsu
+    // Angka 15 = total data, Angka 5 = data per halaman, Angka 1 = halaman saat ini
+    $evaluationsToPerform = new \Illuminate\Pagination\LengthAwarePaginator($dataOrang, 15, 5, 1);
+
+    return view('dashboard_panitia.index', [
+        'avgScore' => 4.5,
+        'totalEvaluationsPerformed' => 12,
+        'totalTasks' => 15,
+        'progress' => 80,
+        
+        'kriteriaScores' => [
+            'KERJA SAMA' => 4.2,
+            'DISIPLIN' => 4.8,
+            'TANGGUNG JAWAB' => 4.5,
+        ],
+        
+        // 3. Masukkan paginator palsu ke sini
+        'evaluationsToPerform' => $evaluationsToPerform
+    ]);
+});
+
+/* Pilih Event */
+Route::get('/ui-pilih-event', function () {
+    return view('pilih_event.index'); // Sesuaikan nama filenya
+});
