@@ -178,7 +178,7 @@
             padding: 0 40px; background-color: transparent;
         }
 
-        .topbar__title { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); }
+        .topbar__title { font-size: 1.5rem; font-weight: 800; color: #792131; }
         .topbar__actions { display: flex; align-items: center; gap: 24px; }
 
         .notification-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; position: relative; padding: 4px; }

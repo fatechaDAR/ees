@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard Admin')
 
-@section('page_title', 'Dashboard Admin')
+@section('page_title', 'Evalytics')
 
 @section('content')
    <style>
@@ -21,7 +21,7 @@
     }
 
     /* Typography */
-    .dash-title { font-size: 1.75rem; font-weight: 800; color: var(--primary-color); margin-bottom: 4px; letter-spacing: -0.5px; }
+    .dash-title { font-size: 1.75rem; font-weight: 800; color: #000000; margin-bottom: 4px; letter-spacing: -0.5px; }
     .dash-subtitle { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
 
     /* Grid System */
