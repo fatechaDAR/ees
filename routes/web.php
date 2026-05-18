@@ -72,7 +72,7 @@ Route::get('/hasil-evaluasi-panitia', [PanitiaController::class, 'personalEvalua
 //cek desain UI Panitia
 Route::get('/cek-desain-panitia', function () {
     
-    // 1. Kita buat array data orangnya dulu
+    // 1. array data orang
     $dataOrang = [
         (object) [
             'nama' => 'Arya Mahendra',
@@ -94,7 +94,7 @@ Route::get('/cek-desain-panitia', function () {
         ]
     ];
 
-    // 2. Kita sulap array tadi jadi Paginator Palsu
+    // 2. array jadi Paginator Palsu
     // Angka 15 = total data, Angka 5 = data per halaman, Angka 1 = halaman saat ini
     $evaluationsToPerform = new \Illuminate\Pagination\LengthAwarePaginator($dataOrang, 15, 5, 1);
 
@@ -110,12 +110,12 @@ Route::get('/cek-desain-panitia', function () {
             'TANGGUNG JAWAB' => 4.5,
         ],
         
-        // 3. Masukkan paginator palsu ke sini
+        // 3. 
         'evaluationsToPerform' => $evaluationsToPerform
     ]);
 });
 
 /* Pilih Event */
 Route::get('/ui-pilih-event', function () {
-    return view('pilih_event.index'); // Sesuaikan nama filenya
+    return view('pilih_event.index'); // 
 });

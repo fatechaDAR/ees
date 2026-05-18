@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Hasil Evaluasi')
-@section('page_title', 'Hasil Evaluasi')
+@section('page_title', 'Evalytics')
 
 @section('content')
 

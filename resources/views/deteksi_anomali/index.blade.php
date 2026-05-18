@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Deteksi Anomali')
-@section('page_title', 'Deteksi Anomali')
+@section('page_title', 'Evalytics')
 
 @section('content')
 
