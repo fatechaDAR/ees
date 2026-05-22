@@ -9,21 +9,37 @@ use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Evaluation::query();
+
+        if ($request->filled('event_id')) {
+            $query->where('event_id', $request->event_id);
+        }
+
+        if ($request->filled('division_id')) {
+            $query->whereHas('evaluatee', function ($q) use ($request) {
+                $q->where('division_id', $request->division_id);
+            });
+        }
+
         // Data KPI
-        $totalEvaluations = Evaluation::count();
-        $avgScore = Evaluation::avg('final_score') ?? 0;
-        $pendingEvaluations = Evaluation::whereNull('final_score')->count();
+        $totalEvaluations = $query->count();
+        $avgScoreQuery = clone $query;
+        $avgScore = $avgScoreQuery->avg('final_score') ?? 0;
+        
+        $pendingQuery = clone $query;
+        $pendingEvaluations = $pendingQuery->whereNull('final_score')->count();
 
         // Data untuk Filter
         $events = Event::all();
         $divisions = Division::all();
 
         // Daftar Evaluasi
-        $evaluations = Evaluation::with(['event', 'evaluator', 'evaluatee.user', 'evaluatee.division'])
+        $evaluations = $query->with(['event', 'evaluator', 'evaluatee.user', 'evaluatee.division'])
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('monitoring_evaluasi.index', compact(
             'totalEvaluations',

@@ -41,12 +41,21 @@ Route::get('/dashboard-admin', [AdminController::class, 'index'])->middleware('a
 
 /*Manajemen Event*/
 Route::get('/manajemen-event', [EventController::class, 'index'])->name('event.index');
+Route::get('/manajemen-event/export', [EventController::class, 'export'])->name('event.export');
+Route::post('/manajemen-event', [EventController::class, 'store'])->name('event.store');
+Route::put('/manajemen-event/{event}', [EventController::class, 'update'])->name('event.update');
+Route::delete('/manajemen-event/{event}', [EventController::class, 'destroy'])->name('event.destroy');
 
 /*Manajemen Divisi*/
 Route::get('/manajemen-divisi', [DivisionController::class, 'index'])->name('divisi.index');
+Route::get('/manajemen-divisi/export', [DivisionController::class, 'export'])->name('divisi.export');
+Route::post('/manajemen-divisi', [DivisionController::class, 'store'])->name('divisi.store');
+Route::put('/manajemen-divisi/{division}', [DivisionController::class, 'update'])->name('divisi.update');
+Route::delete('/manajemen-divisi/{division}', [DivisionController::class, 'destroy'])->name('divisi.destroy');
 
 /*Manajemen Panitia*/
 Route::get('/manajemen-panitia', [PanitiaController::class, 'index'])->name('panitia.index');
+Route::get('/manajemen-panitia/export', [PanitiaController::class, 'export'])->name('panitia.export');
 
 /*Manajemen User*/
 Route::get('/manajemen-user', [UserController::class, 'index'])->name('user.index');
@@ -56,12 +65,14 @@ Route::get('/monitoring-evaluasi', [MonitoringController::class, 'index'])->name
 
 /*Hasil Evaluasi*/
 Route::get('/hasil-evaluasi', [ResultController::class, 'index'])->name('hasil.index');
+Route::get('/hasil-evaluasi/export', [ResultController::class, 'exportCsv'])->name('hasil.export');
 
 /*Deteksi Anomali*/
 Route::get('/deteksi-anomali', [AnomalyController::class, 'index'])->name('anomali.index');
 
 /*Ranking*/
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
+Route::get('/ranking/export', [RankingController::class, 'exportCsv'])->name('ranking.export');
 
 /* DASHBOARD PANITIA */
 Route::get('/dashboard-panitia', [\App\Http\Controllers\DashboardPanitiaController::class, 'index'])->middleware('auth')->name('dashboard.panitia');

@@ -79,6 +79,34 @@
     .mp-tools svg { width: 20px; height: 20px; cursor: pointer; transition: 0.2s; }
     .mp-tools svg:hover { color: var(--primary-color); }
 
+    /* --- FILTER PANEL STYLE --- */
+    .mp-filter-panel {
+        padding: 0 24px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out, border-bottom 0.3s ease-out;
+        background-color: rgba(121, 33, 49, 0.01);
+        border-bottom: 1px solid transparent;
+    }
+    .mp-filter-panel.open {
+        padding: 16px 24px;
+        max-height: 120px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .filter-field input:focus {
+        border-color: var(--primary-color);
+    }
+    .btn-filter-apply:hover {
+        background-color: var(--primary-hover);
+    }
+    .btn-filter-reset:hover {
+        background-color: #f3f4f6;
+        color: var(--text-dark);
+    }
+    .active-filter-btn {
+        color: var(--primary-color) !important;
+    }
+
     /* List Layout (Grid untuk keselarasan kolom) */
     .mp-list-wrapper { display: flex; flex-direction: column; }
     .mp-list-header {
@@ -155,10 +183,14 @@
             <p class="mp-desc">Kelola data anggota panitia, atur penugasan divisi, monitor status/aktivitas, dalam event kampus yang sedang berjalan.</p>
         </div>
         <div class="mp-actions">
-            <button class="mp-dropdown">
-                <span>Pilih Event:</span> Dies Natalis 64
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
+            <select class="mp-dropdown" onchange="window.location.href='?event_id=' + this.value" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; padding-right: 32px; background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 viewBox=%220 0 24 24%22><path stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19 9l-7 7-7-7%22></path></svg>'); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;">
+                <option value="">-- Pilih Event --</option>
+                @foreach($events as $e)
+                    <option value="{{ $e->id }}" {{ $e->id == $selectedEventId ? 'selected' : '' }}>
+                        {{ $e->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
     </div>
 
@@ -198,9 +230,45 @@
         <div class="mp-table-head">
             <h2 class="mp-table-title">Daftar Anggota Panitia</h2>
             <div class="mp-tools">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <button onclick="toggleFilterPanel()" style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;" title="Filter Pencarian">
+                    <svg id="filterIconSvg" class="{{ request()->filled('search') || request()->filled('division_id') ? 'active-filter-btn' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                </button>
+                <a href="{{ route('panitia.export', ['event_id' => $selectedEventId, 'search' => request('search'), 'division_id' => request('division_id')]) }}" title="Unduh CSV" style="color: inherit; display: flex; align-items: center;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </a>
             </div>
+        </div>
+
+        <div id="filterPanel" class="mp-filter-panel {{ request()->filled('search') || request()->filled('division_id') ? 'open' : '' }}">
+            <form method="GET" action="{{ route('panitia.index') }}" style="display: flex; gap: 16px; align-items: center; width: 100%; flex-wrap: wrap;">
+                <input type="hidden" name="event_id" value="{{ $selectedEventId }}">
+                
+                <div class="filter-field" style="flex: 1; min-width: 200px;">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama panitia..." style="width: 100%; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light); font-size: 0.85rem; outline: none; font-weight: 500; transition: border-color 0.2s;">
+                </div>
+                
+                <div class="filter-field" style="min-width: 200px;">
+                    <select name="division_id" style="width: 100%; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light); font-size: 0.85rem; outline: none; font-weight: 600; color: var(--text-dark); background-color: var(--bg-white);">
+                        <option value="">-- Semua Divisi --</option>
+                        @foreach($divisions as $div)
+                            <option value="{{ $div->id }}" {{ request('division_id') == $div->id ? 'selected' : '' }}>
+                                {{ $div->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="filter-actions" style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn-filter-apply" style="background-color: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background-color 0.2s;">
+                        Terapkan
+                    </button>
+                    @if(request()->filled('search') || request()->filled('division_id'))
+                        <a href="{{ route('panitia.index', ['event_id' => $selectedEventId]) }}" class="btn-filter-reset" style="background-color: var(--bg-layout); color: var(--text-muted); border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="mp-list-wrapper">
@@ -259,4 +327,17 @@
     </div>
 
 </div>
+
+<script>
+    function toggleFilterPanel() {
+        const panel = document.getElementById('filterPanel');
+        const iconSvg = document.getElementById('filterIconSvg');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) {
+            iconSvg.classList.add('active-filter-btn');
+        } else {
+            iconSvg.classList.remove('active-filter-btn');
+        }
+    }
+</script>
 @endsection

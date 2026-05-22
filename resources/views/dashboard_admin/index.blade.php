@@ -167,7 +167,7 @@
         <div class="card-kpi">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-dark);">Rata-rata Nilai per Event</h3>
-                <a href="#" style="font-size: 0.8rem; color: var(--primary-color); font-weight: 700;">View Detailed &rarr;</a>
+                <a href="{{ route('hasil.index') }}" style="font-size: 0.8rem; color: var(--primary-color); font-weight: 700;">View Detailed &rarr;</a>
             </div>
             
             <div class="bar-chart-container">
@@ -185,7 +185,22 @@
 
         <div class="card-kpi">
             <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-dark); text-align: center;">Distribusi Kategori Nilai</h3>
-            <div class="donut-chart">
+            @php
+                $sb = $distribusi['sangat_baik'];
+                $b = $distribusi['baik'];
+                $c = $distribusi['cukup'];
+                $k = $distribusi['kurang'];
+
+                if ($sb == 0 && $b == 0 && $c == 0 && $k == 0) {
+                    $gradient = "#e5e7eb 0% 100%";
+                } else {
+                    $sb_end = $sb;
+                    $b_end = $sb_end + $b;
+                    $c_end = $b_end + $c;
+                    $gradient = "#10b981 0% {$sb_end}%, #3b82f6 {$sb_end}% {$b_end}%, #f59e0b {$b_end}% {$c_end}%, #ef4444 {$c_end}% 100%";
+                }
+            @endphp
+            <div class="donut-chart" style="background: conic-gradient({{ $gradient }});">
                 <div class="donut-hole">
                     <span style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">{{ $totalEvaluasi }}</span>
                     <span style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">TOTAL</span>
@@ -216,7 +231,7 @@
 <div class="rank-card">
     <div class="rank-header">
         <h2 class="rank-title">Ranking Panitia Terbaik</h2>
-        <a href="#" class="rank-global-btn">Global Leaderboard</a>
+        <a href="{{ route('ranking.index') }}" class="rank-global-btn">Global Leaderboard</a>
     </div>
 
     <div class="rank-list">
@@ -245,7 +260,7 @@
     </div>
 
     <div class="rank-footer">
-        <a href="#" class="btn-show-all">Tampilkan Seluruh Ranking</a>
+        <a href="{{ route('ranking.index') }}" class="btn-show-all">Tampilkan Seluruh Ranking</a>
     </div>
 </div>
 

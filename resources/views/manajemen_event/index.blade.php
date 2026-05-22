@@ -94,11 +94,40 @@
     .em-table-header {
         padding: 24px; display: flex; justify-content: space-between; align-items: center;
         border-bottom: 1px solid var(--border-light);
+        flex-wrap: wrap; gap: 12px;
     }
     .em-table-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0; }
-    .em-table-tools { display: flex; gap: 16px; color: var(--text-muted); }
-    .em-tool-icon { width: 20px; height: 20px; cursor: pointer; transition: color 0.2s; }
-    .em-tool-icon:hover { color: var(--primary-color); }
+    .mp-tools { display: flex; gap: 16px; color: var(--text-muted); }
+    .mp-tools svg { width: 20px; height: 20px; cursor: pointer; transition: 0.2s; }
+    .mp-tools svg:hover { color: var(--primary-color); }
+
+    /* Filter Panel */
+    .mp-filter-panel {
+        padding: 0 24px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out, border-bottom 0.3s ease-out;
+        background-color: rgba(121, 33, 49, 0.01);
+        border-bottom: 1px solid transparent;
+    }
+    .mp-filter-panel.open {
+        padding: 16px 24px;
+        max-height: 120px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .filter-field input:focus {
+        border-color: var(--primary-color);
+    }
+    .btn-filter-apply:hover {
+        background-color: var(--primary-hover);
+    }
+    .btn-filter-reset:hover {
+        background-color: #f3f4f6;
+        color: var(--text-dark);
+    }
+    .active-filter-btn {
+        color: var(--primary-color) !important;
+    }
 
     /* Baris Tabel */
     .em-list-wrapper { display: flex; flex-direction: column; }
@@ -165,11 +194,18 @@
             <h1 class="em-title">Management Event</h1>
             <p class="em-desc">Mengawasi dan mengevaluasi kegiatan akademik, melacak metrik kinerja, dan menjaga keunggulan institusi di seluruh departemen.</p>
         </div>
-        <button class="btn-add-event" onclick="toggleModal('modalEvent', true)">
+        <button class="btn-add-event" onclick="openAddModal()">
             <span class="plus-circle">+</span>
             Tambah Event
         </button>
     </div>
+
+    @if(session('success'))
+    <div style="background-color: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: 16px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.4s ease-out; margin-bottom: 8px;">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
 
     <div class="em-kpi-grid">
         <div class="em-kpi-card">
@@ -191,10 +227,43 @@
     <div class="em-table-card">
         <div class="em-table-header">
             <h2 class="em-table-title">Acara Mendatang dan Terkini</h2>
-            <div class="em-table-tools">
-                <svg class="em-tool-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                <svg class="em-tool-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <div class="mp-tools">
+                <button onclick="toggleFilterPanel()" style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;" title="Filter Pencarian">
+                    <svg id="filterIconSvg" class="{{ request('search') || request('status') ? 'active-filter-btn' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                </button>
+                <a href="{{ route('event.export', ['search' => request('search'), 'status' => request('status')]) }}" title="Unduh CSV" style="color: inherit; display: flex; align-items: center;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </a>
             </div>
+        </div>
+
+        {{-- Panel Filter --}}
+        <div id="filterPanel" class="mp-filter-panel {{ (request('search') || request('status')) ? 'open' : '' }}">
+            <form method="GET" action="{{ route('event.index') }}" id="filterForm" style="display: flex; gap: 16px; align-items: center; width: 100%; flex-wrap: wrap;">
+                
+                <div class="filter-field" style="flex: 1; min-width: 200px;">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama event..." style="width: 100%; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light); font-size: 0.85rem; outline: none; font-weight: 500; transition: border-color 0.2s;">
+                </div>
+                
+                <div class="filter-field" style="min-width: 200px;">
+                    <select name="status" style="width: 100%; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light); font-size: 0.85rem; outline: none; font-weight: 600; color: var(--text-dark); background-color: var(--bg-white);">
+                        <option value="">-- Semua Status --</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+                
+                <div class="filter-actions" style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn-filter-apply" style="background-color: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background-color 0.2s;">
+                        Terapkan
+                    </button>
+                    @if(request('search') || request('status'))
+                        <a href="{{ route('event.index') }}" class="btn-filter-reset" style="background-color: var(--bg-layout); color: var(--text-muted); border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="em-list-wrapper">
@@ -221,8 +290,8 @@
                 </div>
                 <div><span class="badge {{ $event->status == 'active' ? 'badge-active' : 'badge-completed' }}">{{ strtoupper($event->status) }}</span></div>
                 <div class="col-actions">
-                    <button class="action-btn btn-edit" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Delete">🗑</button>
+                    <button class="action-btn btn-edit" title="Edit" onclick="openEditModal({{ json_encode($event) }})">✎</button>
+                    <button class="action-btn btn-delete" title="Delete" onclick="deleteEvent({{ $event->id }}, '{{ addslashes($event->name) }}')">🗑</button>
                 </div>
             </div>
             @empty
@@ -390,57 +459,91 @@
 
 <div id="modalEvent" class="modal-overlay">
     <div class="modal-content">
-        
-        <div class="modal-header">
-            <h2 class="modal-title">Tambah / Edit Event</h2>
-            <button class="btn-close" onclick="toggleModal('modalEvent', false)">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-
-        <div class="modal-body">
-            <div class="form-group has-error">
-                <label class="form-label">Nama Event <span class="required">*</span></label>
-                
-                <input 
-                    type="text" 
-                    class="form-input" 
-                    placeholder="Contoh: Orientasi Mahasiswa Baru" 
-                    required
-                    oninput="this.parentElement.classList.remove('has-error')"
-                >
-                
-                <span class="error-msg">Field ini wajib diisi</span>
+        <form action="{{ route('event.store') }}" method="POST" id="eventForm">
+            @csrf
+            <input type="hidden" name="_method" id="formMethod" value="POST">
+            <input type="hidden" name="event_id" id="eventIdInput" value="{{ old('event_id') }}">
+            
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Tambah Event</h2>
+                <button type="button" class="btn-close" onclick="toggleModal('modalEvent', false)">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Tanggal Event</label>
-                <input type="date" class="form-input">
+            <div class="modal-body">
+                <div class="form-group @error('name') has-error @enderror">
+                    <label class="form-label">Nama Event <span class="required">*</span></label>
+                    
+                    <input 
+                        type="text" 
+                        name="name"
+                        class="form-input" 
+                        placeholder="Contoh: Orientasi Mahasiswa Baru" 
+                        value="{{ old('name') }}"
+                        required
+                        oninput="this.parentElement.classList.remove('has-error')"
+                    >
+                    
+                    @error('name')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @else
+                        <span class="error-msg">Field ini wajib diisi</span>
+                    @enderror
+                </div>
+
+                <div class="form-group @error('description') has-error @enderror">
+                    <label class="form-label">Deskripsi Event</label>
+                    <textarea 
+                        name="description" 
+                        class="form-input" 
+                        style="resize: vertical; min-height: 80px;" 
+                        placeholder="Contoh: Deskripsi singkat tentang event..."
+                    >{{ old('description') }}</textarea>
+                    @error('description')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group @error('date') has-error @enderror">
+                    <label class="form-label">Tanggal Event</label>
+                    <input type="date" name="date" class="form-input" value="{{ old('date') }}">
+                    @error('date')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group @error('status') has-error @enderror">
+                    <label class="form-label">Status Event</label>
+                    <select name="status" class="form-select">
+                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                    @error('status')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="info-box">
+                    <svg class="info-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    <p class="info-text">
+                        <strong>Catatan Penting:</strong> Pastikan nama event sesuai dengan dokumen akademik resmi. Perubahan status menjadi "Selesai" akan mengunci seluruh akses penilaian panitia secara permanen.
+                    </p>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Status Event</label>
-                <select class="form-select">
-                    <option value="aktif" selected>Aktif</option>
-                    <option value="selesai">Selesai</option>
-                </select>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="toggleModal('modalEvent', false)">Batal</button>
+                <button type="submit" class="btn-primary">Simpan</button>
             </div>
-
-            <div class="info-box">
-                <svg class="info-icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                <p class="info-text">
-                    <strong>Catatan Penting:</strong> Pastikan nama event sesuai dengan dokumen akademik resmi. Perubahan status menjadi "Selesai" akan mengunci seluruh akses penilaian panitia secara permanen.
-                </p>
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="toggleModal('modalEvent', false)">Batal</button>
-            <button class="btn-primary" onclick="toggleModal('modalEvent', false)">Simpan</button>
-        </div>
-
+        </form>
     </div>
 </div>
+
+<form id="deleteForm" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 
 <script>
     // Fungsi sederhana untuk membuka & menutup modal
@@ -452,5 +555,81 @@
             modal.classList.remove('active');
         }
     }
+
+    function openAddModal() {
+        const form = document.getElementById('eventForm');
+        form.action = "{{ route('event.store') }}";
+        document.getElementById('formMethod').value = 'POST';
+        document.getElementById('eventIdInput').value = '';
+        document.getElementById('modalTitle').innerText = 'Tambah Event';
+        
+        // Reset fields
+        form.name.value = '';
+        form.description.value = '';
+        form.date.value = '';
+        form.status.value = 'active';
+        
+        toggleModal('modalEvent', true);
+    }
+
+    function openEditModal(event) {
+        const form = document.getElementById('eventForm');
+        form.action = "/manajemen-event/" + event.id;
+        document.getElementById('formMethod').value = 'PUT';
+        document.getElementById('eventIdInput').value = event.id;
+        document.getElementById('modalTitle').innerText = 'Edit Event';
+        
+        // Populate fields
+        form.name.value = event.name || '';
+        form.description.value = event.description || '';
+        form.date.value = event.start_date || '';
+        form.status.value = event.status || 'active';
+        
+        toggleModal('modalEvent', true);
+    }
+
+    function deleteEvent(id, name) {
+        if (confirm('Apakah Anda yakin ingin menghapus event "' + name + '"? Semua data terkait (divisi, panitia, evaluasi) juga mungkin akan terhapus.')) {
+            const form = document.getElementById('deleteForm');
+            form.action = "/manajemen-event/" + id;
+            form.submit();
+        }
+    }
+
+    // ---- Fungsi Filter Panel ----
+    function toggleFilterPanel() {
+        const panel = document.getElementById('filterPanel');
+        const iconSvg = document.getElementById('filterIconSvg');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) {
+            iconSvg.classList.add('active-filter-btn');
+        } else {
+            iconSvg.classList.remove('active-filter-btn');
+        }
+    }
+
+    function resetFilter() {
+        window.location.href = "{{ route('event.index') }}";
+    }
+
+    // Auto-open modal jika terjadi error validasi saat reload
+    @if($errors->any())
+        document.addEventListener("DOMContentLoaded", function() {
+            const oldMethod = "{{ old('_method') }}";
+            const oldId = "{{ old('event_id') }}";
+            if (oldMethod === 'PUT' && oldId) {
+                const event = {
+                    id: oldId,
+                    name: "{{ old('name') }}",
+                    description: `{!! addslashes(old('description')) !!}`,
+                    start_date: "{{ old('date') }}",
+                    status: "{{ old('status') }}"
+                };
+                openEditModal(event);
+            } else {
+                openAddModal();
+            }
+        });
+    @endif
 </script>
 @endsection

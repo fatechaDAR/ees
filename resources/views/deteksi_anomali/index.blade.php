@@ -175,18 +175,21 @@
         
         <div class="db-filters">
             <span class="filter-label">Filter:</span>
-            <select class="filter-select">
-                <option>Semua Data</option>
-                <option>Dies Natalis 2024</option>
-                <option>Seminar Nasional</option>
-            </select>
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label" onclick="document.querySelector('.switch input').click()">Tampilkan hanya data anomali</span>
-            </div>
+            <form method="GET" action="{{ route('anomali.index') ?? url('/deteksi-anomali') }}" style="display: flex; align-items: center; gap: 16px; margin: 0;" id="filterForm">
+                <select name="event_id" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">Semua Data Event</option>
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}" {{ request('event_id') == $event->id ? 'selected' : '' }}>{{ $event->name }}</option>
+                    @endforeach
+                </select>
+                <div class="toggle-container">
+                    <label class="switch">
+                        <input type="checkbox" name="only_anomaly" value="1" {{ $isAnomalyFiltered ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label" onclick="document.querySelector('.switch input').click()">Tampilkan hanya data anomali</span>
+                </div>
+            </form>
         </div>
     </div>
 

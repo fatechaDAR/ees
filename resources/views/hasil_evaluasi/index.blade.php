@@ -196,11 +196,11 @@
             <p class="hep-desc">Laporan agregat performa seluruh divisi pada gelaran Dies Natalis ke-65 Universitas Gadjah Mada.</p>
         </div>
         <div class="hep-actions">
-            <button class="btn-outline">
+            <a href="{{ route('hasil.export', request()->query()) }}" class="btn-outline" style="text-decoration: none;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export PDF
-            </button>
-            <button class="btn-primary">
+            </a>
+            <button class="btn-primary" onclick="shareReport()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
                 Share Report
             </button>
@@ -240,12 +240,14 @@
     <div class="hep-table-card">
         <div class="hep-table-head">
             <h2 class="hep-table-title">Rincian Nilai Individu</h2>
-            <select class="filter-select">
-                <option value="">Semua Event</option>
-                @foreach($events as $event)
-                    <option value="{{ $event->id }}">{{ $event->name }}</option>
-                @endforeach
-            </select>
+            <form method="GET" action="{{ route('hasil.index') }}" style="margin: 0;">
+                <select name="event_id" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Semua Event</option>
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}" {{ request('event_id') == $event->id ? 'selected' : '' }}>{{ $event->name }}</option>
+                    @endforeach
+                </select>
+            </form>
         </div>
 
         <div class="hep-list-wrapper">
@@ -309,4 +311,29 @@
     </footer>
 
 </div>
+
+<script>
+    function shareReport() {
+        const url = window.location.href;
+        const title = 'Laporan Hasil Evaluasi Panitia EES';
+        const text = 'Berikut adalah tautan untuk melihat Laporan Hasil Evaluasi Panitia secara lengkap.';
+
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: text,
+                url: url
+            }).catch(err => {
+                console.error('Error sharing:', err);
+            });
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Tautan laporan telah disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Gagal menyalin tautan laporan.');
+            });
+        }
+    }
+</script>
 @endsection
