@@ -21,7 +21,7 @@ class DashboardPanitiaController extends Controller
                 'totalTasks' => 0,
                 'progress' => 0,
                 'kriteriaScores' => [],
-                'evaluationsToPerform' => collect()
+                'evaluationsToPerform' => \App\Models\Evaluation::whereNull('id')->paginate(5)
             ]);
         }
 
