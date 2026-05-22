@@ -68,11 +68,39 @@
         background-color: var(--bg-white); border-radius: var(--radius-lg);
         box-shadow: var(--card-shadow); border: 1px solid var(--border-light); overflow: hidden;
     }
-    .dm-table-head { padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); }
+    .dm-table-head { padding: 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 12px; }
     .dm-table-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0; }
-    .dm-tools { display: flex; gap: 16px; color: var(--text-muted); }
-    .dm-tools svg { width: 20px; height: 20px; cursor: pointer; transition: 0.2s; }
-    .dm-tools svg:hover { color: var(--primary-color); }
+    .mp-tools { display: flex; gap: 16px; color: var(--text-muted); }
+    .mp-tools svg { width: 20px; height: 20px; cursor: pointer; transition: 0.2s; }
+    .mp-tools svg:hover { color: var(--primary-color); }
+
+    /* Filter Panel */
+    .mp-filter-panel {
+        padding: 0 24px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out, border-bottom 0.3s ease-out;
+        background-color: rgba(121, 33, 49, 0.01);
+        border-bottom: 1px solid transparent;
+    }
+    .mp-filter-panel.open {
+        padding: 16px 24px;
+        max-height: 120px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .filter-field input:focus {
+        border-color: var(--primary-color);
+    }
+    .btn-filter-apply:hover {
+        background-color: var(--primary-hover);
+    }
+    .btn-filter-reset:hover {
+        background-color: #f3f4f6;
+        color: var(--text-dark);
+    }
+    .active-filter-btn {
+        color: var(--primary-color) !important;
+    }
 
     /* List Layout */
     .dm-list-wrapper { display: flex; flex-direction: column; }
@@ -163,16 +191,30 @@
             <p class="dm-desc">Mengelola struktur kepanitiaan dan alokasi SDM untuk setiap departemen dalam acara kampus.</p>
         </div>
         <div class="dm-actions">
-            <button class="dm-dropdown">
-                Dies Natalis ke-60
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <button class="btn-add" onclick="toggleModal('modalDivisi', true)">
+            @if($events->isEmpty())
+                <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Belum ada Event</span>
+            @else
+                <select class="dm-dropdown" onchange="window.location.href='/manajemen-divisi?event_id=' + this.value" style="border: 1px solid var(--border-light); border-radius: 20px; font-weight: 700; font-size: 0.85rem; padding: 10px 16px; outline: none; cursor: pointer; color: var(--text-dark); background-color: var(--bg-white);">
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}" {{ $event->id == $selectedEventId ? 'selected' : '' }}>
+                            {{ $event->name }}
+                        </option>
+                    @endforeach
+                </select>
+            @endif
+            <button class="btn-add" onclick="openAddModal()">
                 <span class="plus-icon">+</span>
                 Tambah Divisi
             </button>
         </div>
     </div>
+
+    @if(session('success'))
+    <div style="background-color: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: 16px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.4s ease-out; margin-bottom: 8px;">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+        <span>{{ session('success') }}</span>
+    </div>
+    @endif
 
     <div class="dm-kpi-grid">
         <div class="dm-kpi-card">
@@ -195,10 +237,36 @@
     <div class="dm-table-card">
         <div class="dm-table-head">
             <h2 class="dm-table-title">Daftar Divisi Aktif</h2>
-            <div class="dm-tools">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <div class="mp-tools">
+                <button onclick="toggleFilterPanel()" style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;" title="Filter Pencarian">
+                    <svg id="filterIconSvg" class="{{ request('search_divisi') ? 'active-filter-btn' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                </button>
+                <a href="{{ route('divisi.export', ['event_id' => $selectedEventId, 'search_divisi' => request('search_divisi')]) }}" title="Unduh CSV" style="color: inherit; display: flex; align-items: center;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </a>
             </div>
+        </div>
+
+        {{-- Panel Filter --}}
+        <div id="filterPanel" class="mp-filter-panel {{ request('search_divisi') ? 'open' : '' }}">
+            <form method="GET" action="{{ route('divisi.index') }}" style="display: flex; gap: 16px; align-items: center; width: 100%; flex-wrap: wrap;">
+                <input type="hidden" name="event_id" value="{{ $selectedEventId }}">
+                
+                <div class="filter-field" style="flex: 1; min-width: 200px;">
+                    <input type="text" name="search_divisi" value="{{ request('search_divisi') }}" placeholder="Cari nama divisi..." style="width: 100%; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light); font-size: 0.85rem; outline: none; font-weight: 500; transition: border-color 0.2s;">
+                </div>
+                
+                <div class="filter-actions" style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn-filter-apply" style="background-color: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: background-color 0.2s;">
+                        Terapkan
+                    </button>
+                    @if(request()->filled('search_divisi'))
+                        <a href="{{ route('divisi.index', ['event_id' => $selectedEventId]) }}" class="btn-filter-reset" style="background-color: var(--bg-layout); color: var(--text-muted); border: 1px solid var(--border-light); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="dm-list-wrapper">
@@ -223,8 +291,8 @@
                 <div><span class="badge badge-blue">LENGKAP</span></div>
                 <div class="dm-count">{{ $divisi->committee_members_count }}</div>
                 <div class="col-actions">
-                    <button class="action-btn" title="Edit">✎</button>
-                    <button class="action-btn btn-delete" title="Hapus">🗑</button>
+                    <button class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($divisi) }})">✎</button>
+                    <button class="action-btn btn-delete" title="Hapus" onclick="deleteDivisi({{ $divisi->id }}, '{{ addslashes($divisi->name) }}')">🗑</button>
                 </div>
             </div>
             @empty
@@ -242,11 +310,11 @@
         </div>
     </div>
 
-    <div class="dm-helper-card">
+    <div class="dm-helper-card" onclick="openAddModal()">
         <div class="helper-icon">+</div>
-        <h3 class="helper-title">Butuh struktur tambahan?</h3>
-        <p class="helper-desc">Anda bisa menambahkan sub-divisi atau menduplikasi struktur dari event sebelumnya.</p>
-        <a href="#" class="helper-link">Lihat Template Divisi &rarr;</a>
+        <h3 class="helper-title">Butuh divisi tambahan?</h3>
+        <p class="helper-desc">Anda bisa menambahkan divisi baru untuk departemen event yang sedang aktif ini.</p>
+        <span class="helper-link">Tambah Divisi Baru &rarr;</span>
     </div>
 
     <footer style="text-align: center; margin-top: 16px; font-size: 0.75rem; color: var(--text-placeholder); font-weight: 600;">
@@ -371,48 +439,71 @@
 
 <div id="modalDivisi" class="modal-overlay">
     <div class="modal-content">
-        
-        <div class="modal-header">
-            <button class="btn-close" onclick="toggleModal('modalDivisi', false)">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h2 class="modal-title">Tambah / Edit Divisi</h2>
-            <div class="badge-event-context">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                EVENT AKTIF: DIES NATALIS 64
-            </div>
-        </div>
-
-        <div class="modal-body">
+        <form action="{{ route('divisi.store') }}" method="POST" id="divisiForm">
+            @csrf
+            <input type="hidden" name="_method" id="formMethod" value="POST">
+            <input type="hidden" name="division_id" id="divisionIdInput" value="{{ old('division_id') }}">
+            <input type="hidden" name="event_id" value="{{ $selectedEventId }}">
             
-            <div class="form-group has-error">
-                <label class="form-label">Nama Divisi</label>
-                <div class="input-wrapper">
-                    <input type="text" class="form-input" placeholder="contoh: Divisi Acara" 
-                           oninput="this.closest('.form-group').classList.remove('has-error')">
-                    
-                    <svg class="icon-alert" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                </div>
-                <span class="error-msg">Nama divisi harus minimal 3 karakter.</span>
-            </div>
-
-            <div class="callout-box">
-                <svg class="callout-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                <div class="callout-content">
-                    <h4 class="callout-title">Catatan Editorial</h4>
-                    <p class="callout-text">Nama divisi akan muncul pada sertifikat kepanitiaan dan laporan akhir evaluasi. Pastikan penulisan sesuai dengan SK Rektor.</p>
+            <div class="modal-header">
+                <button type="button" class="btn-close" onclick="toggleModal('modalDivisi', false)">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h2 class="modal-title" id="modalTitle">Tambah Divisi</h2>
+                <div class="badge-event-context">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    EVENT AKTIF: {{ $events->firstWhere('id', $selectedEventId)?->name ?? 'TIDAK ADA EVENT' }}
                 </div>
             </div>
 
-        </div>
+            <div class="modal-body">
+                
+                <div class="form-group @error('name') has-error @enderror">
+                    <label class="form-label">Nama Divisi <span style="color: #ef4444;">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="text" name="name" class="form-input" placeholder="contoh: Divisi Acara" 
+                               value="{{ old('name') }}" required
+                               oninput="this.closest('.form-group').classList.remove('has-error')">
+                        
+                        <svg class="icon-alert" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    @error('name')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @else
+                        <span class="error-msg">Nama divisi harus minimal 3 karakter.</span>
+                    @enderror
+                </div>
 
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="toggleModal('modalDivisi', false)">Batal</button>
-            <button class="btn-primary" onclick="toggleModal('modalDivisi', false)">Simpan Perubahan</button>
-        </div>
+                <div class="form-group @error('description') has-error @enderror">
+                    <label class="form-label">Deskripsi Divisi</label>
+                    <textarea name="description" class="form-input" style="resize: vertical; min-height: 80px;" placeholder="contoh: Bertanggung jawab atas jalannya rangkaian acara...">{{ old('description') }}</textarea>
+                    @error('description')
+                        <span class="error-msg" style="display: block;">{{ $message }}</span>
+                    @enderror
+                </div>
 
+                <div class="callout-box">
+                    <svg class="callout-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    <div class="callout-content">
+                        <h4 class="callout-title">Catatan Editorial</h4>
+                        <p class="callout-text">Nama divisi akan muncul pada sertifikat kepanitiaan dan laporan akhir evaluasi. Pastikan penulisan sesuai dengan SK Rektor.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="toggleModal('modalDivisi', false)">Batal</button>
+                <button type="submit" class="btn-primary">Simpan</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<form id="deleteFormDivisi" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 
 <script>
     // Fungsi sederhana untuk membuka & menutup modal
@@ -424,5 +515,75 @@
             modal.classList.remove('active');
         }
     }
+
+    function openAddModal() {
+        const form = document.getElementById('divisiForm');
+        form.action = "{{ route('divisi.store') }}";
+        document.getElementById('formMethod').value = 'POST';
+        document.getElementById('divisionIdInput').value = '';
+        document.getElementById('modalTitle').innerText = 'Tambah Divisi';
+        
+        // Reset fields
+        form.name.value = '';
+        form.description.value = '';
+        
+        toggleModal('modalDivisi', true);
+    }
+
+    function openEditModal(division) {
+        const form = document.getElementById('divisiForm');
+        form.action = "/manajemen-divisi/" + division.id;
+        document.getElementById('formMethod').value = 'PUT';
+        document.getElementById('divisionIdInput').value = division.id;
+        document.getElementById('modalTitle').innerText = 'Edit Divisi';
+        
+        // Populate fields
+        form.name.value = division.name || '';
+        form.description.value = division.description || '';
+        
+        toggleModal('modalDivisi', true);
+    }
+
+    function deleteDivisi(id, name) {
+        if (confirm('Apakah Anda yakin ingin menghapus divisi "' + name + '"? Semua panitia dan data evaluasi di dalam divisi ini juga akan terhapus.')) {
+            const form = document.getElementById('deleteFormDivisi');
+            form.action = "/manajemen-divisi/" + id;
+            form.submit();
+        }
+    }
+
+    // ---- Fungsi Filter Panel ----
+    function toggleFilterPanel() {
+        const panel = document.getElementById('filterPanel');
+        const iconSvg = document.getElementById('filterIconSvg');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) {
+            iconSvg.classList.add('active-filter-btn');
+        } else {
+            iconSvg.classList.remove('active-filter-btn');
+        }
+    }
+
+    function resetFilter() {
+        window.location.href = "{{ route('divisi.index') }}?event_id={{ $selectedEventId }}";
+    }
+
+    // Auto-open modal jika terjadi error validasi saat reload
+    @if($errors->any())
+        document.addEventListener("DOMContentLoaded", function() {
+            const oldMethod = "{{ old('_method') }}";
+            const oldId = "{{ old('division_id') }}";
+            if (oldMethod === 'PUT' && oldId) {
+                const division = {
+                    id: oldId,
+                    name: {!! json_encode(old('name')) !!},
+                    description: {!! json_encode(old('description')) !!}
+                };
+                openEditModal(division);
+            } else {
+                openAddModal();
+            }
+        });
+    @endif
 </script>
 @endsection

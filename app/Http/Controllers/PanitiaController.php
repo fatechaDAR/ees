@@ -8,33 +8,149 @@ use Illuminate\Http\Request;
 
 class PanitiaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil total panitia dari tabel users
-        $totalPanitia = User::where('role', 'panitia')->count();
+        // Mengambil semua event untuk dropdown
+        $events = \App\Models\Event::orderBy('created_at', 'desc')->get();
 
-        // Total Divisi Aktif
-        $totalDivisi = \App\Models\Division::count();
+        $selectedEventId = $request->input('event_id');
+        if (!$selectedEventId && $events->isNotEmpty()) {
+            $selectedEventId = $events->first()->id;
+        }
 
-        // Evaluasi Tertunda (Skor belum diisi/null)
-        $pendingEvaluations = \App\Models\Evaluation::whereNull('final_score')->count();
+        // Mengambil semua divisi untuk event ini (untuk filter divisi)
+        $divisions = \App\Models\Division::where('event_id', $selectedEventId)->orderBy('name')->get();
 
-        // Rerata Performa Global
-        $avgPerformance = \App\Models\Evaluation::avg('final_score') ?? 0;
+        // Mengambil total panitia dari tabel users yang terdaftar di event terpilih
+        $totalPanitia = User::where('role', 'panitia')
+            ->whereHas('committeeMembers.division', function($q) use ($selectedEventId) {
+                $q->where('event_id', $selectedEventId);
+            })->count();
 
-        // Mengambil daftar panitia (users dengan role panitia)
-        $panitiaList = User::where('role', 'panitia')
-            ->with('committeeMembers.division')
-            ->latest()
-            ->paginate(10);
+        // Total Divisi Aktif pada event terpilih
+        $totalDivisi = \App\Models\Division::where('event_id', $selectedEventId)->count();
+
+        // Evaluasi Tertunda pada event terpilih
+        $pendingEvaluations = \App\Models\Evaluation::whereNull('final_score')
+            ->whereHas('evaluatee.division', function($q) use ($selectedEventId) {
+                $q->where('event_id', $selectedEventId);
+            })->count();
+
+        // Rerata Performa pada event terpilih
+        $avgPerformance = \App\Models\Evaluation::whereHas('evaluatee.division', function($q) use ($selectedEventId) {
+                $q->where('event_id', $selectedEventId);
+            })->avg('final_score') ?? 0;
+
+        // Mengambil daftar panitia (users dengan role panitia) yang terdaftar di event terpilih
+        $query = User::where('role', 'panitia');
+        
+        if ($selectedEventId) {
+            $query->whereHas('committeeMembers.division', function($q) use ($selectedEventId) {
+                $q->where('event_id', $selectedEventId);
+            });
+        }
+
+        // Filter pencarian nama
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter divisi
+        if ($request->filled('division_id')) {
+            $query->whereHas('committeeMembers', function($q) use ($request) {
+                $q->where('division_id', $request->division_id);
+            });
+        }
+
+        // Eager load committeeMembers & division
+        if ($selectedEventId) {
+            $query->with(['committeeMembers' => function($q) use ($selectedEventId) {
+                $q->whereHas('division', function($divQ) use ($selectedEventId) {
+                    $divQ->where('event_id', $selectedEventId);
+                })->with('division');
+            }]);
+        } else {
+            $query->with('committeeMembers.division');
+        }
+
+        $panitiaList = $query->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('manajemen_panitia.index', compact(
             'totalPanitia', 
             'totalDivisi', 
             'pendingEvaluations', 
             'avgPerformance', 
-            'panitiaList'
+            'panitiaList',
+            'events',
+            'selectedEventId',
+            'divisions'
         ));
+    }
+
+    public function export(Request $request)
+    {
+        $selectedEventId = $request->input('event_id');
+
+        $query = User::where('role', 'panitia');
+
+        if ($selectedEventId) {
+            $query->whereHas('committeeMembers.division', function($q) use ($selectedEventId) {
+                $q->where('event_id', $selectedEventId);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('division_id')) {
+            $query->whereHas('committeeMembers', function($q) use ($request) {
+                $q->where('division_id', $request->division_id);
+            });
+        }
+
+        if ($selectedEventId) {
+            $query->with(['committeeMembers' => function($q) use ($selectedEventId) {
+                $q->whereHas('division', function($divQ) use ($selectedEventId) {
+                    $divQ->where('event_id', $selectedEventId);
+                })->with('division');
+            }]);
+        } else {
+            $query->with('committeeMembers.division');
+        }
+
+        $list = $query->get();
+
+        $event = \App\Models\Event::find($selectedEventId);
+        $eventName = $event ? preg_replace('/[^a-zA-Z0-9_]/', '_', $event->name) : 'event';
+        $filename = 'data_panitia_' . $eventName . '_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($list) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['No', 'Nama', 'Email', 'Divisi', 'Jabatan']);
+
+            foreach ($list as $i => $u) {
+                $cm = $u->committeeMembers->first();
+                fputcsv($file, [
+                    $i + 1,
+                    $u->name ?? '-',
+                    $u->email ?? '-',
+                    $cm->division->name ?? '-',
+                    ucfirst($cm->position ?? 'member'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function personalEvaluation()

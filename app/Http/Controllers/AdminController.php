@@ -40,10 +40,10 @@ class AdminController extends Controller
             ->get();
 
         // Data untuk Donut Chart: Distribusi Kategori Nilai
-        $sangatBaik = Evaluation::where('final_score', '>', 4.0)->count();
-        $baik = Evaluation::whereBetween('final_score', [3.0, 4.0])->count();
-        $cukup = Evaluation::whereBetween('final_score', [2.0, 3.0])->count();
-        $kurang = Evaluation::where('final_score', '<', 2.0)->count();
+        $sangatBaik = Evaluation::where('final_score', '>=', 4.0)->count();
+        $baik = Evaluation::where('final_score', '>=', 3.0)->where('final_score', '<', 4.0)->count();
+        $cukup = Evaluation::where('final_score', '>=', 2.0)->where('final_score', '<', 3.0)->count();
+        $kurang = Evaluation::where('final_score', '<', 2.0)->whereNotNull('final_score')->count();
 
         // Menghitung persentase
         $distribusi = [
