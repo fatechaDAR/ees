@@ -294,11 +294,6 @@
                 </nav>
 
             <div class="sidebar__footer">
-                <div class="sidebar__help-card">
-                    <p class="help-card__title">Pusat Bantuan</p>
-                    <p class="help-card__desc">Butuh bantuan teknis terkait penilaian?</p>
-                    <a href="#" class="btn-help-outline">Hubungi IT</a>
-                </div>
 
                 <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
                     @csrf
