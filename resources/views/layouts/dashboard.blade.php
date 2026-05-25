@@ -204,6 +204,23 @@
         .content-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         .content-area::-webkit-scrollbar-thumb:hover { background: var(--text-placeholder); }
 
+        /* =========================================
+           8. atur logo, style nya
+           ========================================= */
+        /* Atur container brand agar sejajar ke samping */
+        .sidebar__brand {
+            display: flex;
+            align-items: center; /* Membuat logo dan teks sejajar di tengah secara vertikal */
+            gap: 10px; /* Memberi jarak antara logo dan teks */
+            font-weight: 800; /* Opsional: Menebalkan teks Evalytics */
+        }
+
+        /* Atur ukuran logo agar tidak kebesaran */
+        .brand-logo {
+            width: 60px; /* Silakan ubah angka ini untuk memperbesar/memperkecil logo */
+            height: auto; /* Menjaga proporsi gambar agar tidak gepeng */
+            border-radius: 9px; /* Opsional: Memberikan efek membulat di ujung logo */
+        }
     </style>
 </head>
 <body>
@@ -213,7 +230,9 @@
         <aside class="sidebar">
             
             <div class="sidebar__brand">
-                Evalytics
+                <img src="/img/logo.png" alt="Logo Evalytics" class="brand-logo">
+
+                <span>Evalytics</span>
             </div>
 
             <nav class="sidebar__nav">
