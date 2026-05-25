@@ -221,8 +221,112 @@
             height: auto; /* Menjaga proporsi gambar agar tidak gepeng */
             border-radius: 9px; /* Opsional: Memberikan efek membulat di ujung logo */
         }
+
+            /* =========================================
+            9. MODAL PROFILE
+            ========================================= */
+            /* Modal Overlay */
+    .modal-overlay-profile {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 9999; opacity: 0; visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    .modal-overlay-profile.active { opacity: 1; visibility: visible; }
+
+    /* Modal Content */
+    .modal-content-profile {
+        background-color: #ffffff; width: 100%; max-width: 400px;
+        border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        transform: translateY(-20px); transition: 0.3s ease;
+        padding: 24px; font-family: 'Inter', sans-serif;
+    }
+    .modal-overlay-profile.active .modal-content-profile { transform: translateY(0); }
+
+    /* Header & Teks */
+    .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .profile-header h3 { margin: 0; font-size: 1.2rem; color: #1e293b; font-weight: 800; }
+    .btn-close-profile { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b; }
+    
+    /* Area Preview Foto */
+    .profile-body { text-align: center; }
+    .preview-avatar {
+        width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+        border: 4px solid #f8fafc; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        margin-bottom: 16px;
+    }
+    
+    /* Input File Styling */
+    .file-input-wrapper { margin-bottom: 24px; }
+    .file-input-wrapper input[type="file"] {
+        font-size: 0.85rem; color: #64748b;
+    }
+
+    /* Footer / Tombol */
+    .profile-footer { display: flex; justify-content: flex-end; gap: 12px; }
+    .btn-batal { padding: 10px 16px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #64748b; }
+    .btn-simpan { padding: 10px 16px; border: none; background: #792131; border-radius: 8px; cursor: pointer; font-weight: 600; color: white; transition: 0.2s;}
+    .btn-simpan:hover { background: #5a1824; }
     </style>
 </head>
+
+<div id="modalGantiFoto" class="modal-overlay-profile">
+    <div class="modal-content-profile">
+        
+        <div class="profile-header">
+            <h3>Ganti Foto Profil</h3>
+            <button class="btn-close-profile" onclick="toggleModalProfile(false)">&times;</button>
+        </div>
+
+        <form action="#" method="POST" enctype="multipart/form-data">
+            <div class="profile-body">
+                <img id="previewGambar" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=792131&color=fff&size=120" alt="Preview" class="preview-avatar">
+                
+                <div class="file-input-wrapper">
+                    <input type="file" name="foto" id="inputFoto" accept="image/png, image/jpeg, image/jpg" onchange="previewImage(event)">
+                </div>
+            </div>
+
+            <div class="profile-footer">
+                <button type="button" class="btn-batal" onclick="toggleModalProfile(false)">Batal</button>
+                <button type="submit" class="btn-simpan">Simpan Perubahan</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // Fungsi buka/tutup modal
+    function toggleModalProfile(isShow) {
+        const modal = document.getElementById('modalGantiFoto');
+        if (isShow) {
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+            // Opsional: reset form kalau di-cancel
+            document.getElementById('inputFoto').value = ""; 
+        }
+    }
+
+    // Fungsi canggih untuk Live Preview Foto
+    function previewImage(event) {
+        const input = event.target;
+        const reader = new FileReader();
+        
+        reader.onload = function() {
+            // Mengganti src gambar preview dengan file yang baru dipilih
+            const output = document.getElementById('previewGambar');
+            output.src = reader.result;
+        };
+        
+        if (input.files && input.files[0]) {
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
 <body>
 
     <div class="dashboard-layout">
@@ -282,7 +386,8 @@
 
                 <div class="topbar__actions">
 
-                    <div class="user-profile">
+                    <div class="user-profile" 
+                    onclick="toggleModalProfile(true)" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                         <div class="user-profile__info">
                             <!-- Placeholder nama (Nantinya bisa diganti Auth::user()->name) -->
                             <span class="user-profile__name">Budi Darmawan</span>
