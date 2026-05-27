@@ -154,12 +154,12 @@
     <div class="lhep-header">
         <div class="lhep-title-area">
             <h1 class="lhep-title">Laporan Hasil Evaluasi Pribadi</h1>
-            <p class="lhep-desc">Analisis performa komprehensif berdasarkan penilaian tim sejawat dan koordinator selama event <strong>Dies Natalis 2026</strong>.</p>
+            <p class="lhep-desc">Analisis performa komprehensif berdasarkan penilaian tim sejawat dan koordinator selama event <strong>{{ $eventName }}</strong>.</p>
         </div>
-        <button class="btn-download">
+        <a href="{{ route('hasil-panitia.pdf') }}" class="btn-download" style="text-decoration: none;">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             Download PDF
-        </button>
+        </a>
     </div>
 
     <div class="lhep-kpi-grid">
@@ -218,10 +218,10 @@
             <div class="crit-list-row">
                 <div>
                     <div class="crit-name">{{ $eval->evaluator->name ?? 'Evaluator' }}</div>
-                    <div class="crit-desc">Peran: {{ strtoupper($eval->evaluator->role ?? 'N/A') }}</div>
+                    <div class="crit-desc">Peran: PANITIA</div>
                 </div>
                 <div>
-                    <div class="crit-desc">"{{ $eval->notes ?? 'Tidak ada catatan tambahan' }}"</div>
+                    <div class="crit-desc">"{{ $eval->feedback ?? 'Tidak ada catatan tambahan' }}"</div>
                 </div>
                 <div class="crit-score">{{ number_format($eval->final_score, 1) }}</div>
                 <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted);">
@@ -272,7 +272,7 @@
         </div>
 
         <div class="sec-footer">
-            <a href="{{ route('ranking.index') }}" class="btn-link">LIHAT SELURUH PERINGKAT &rarr;</a>
+            <a href="#" class="btn-link">LIHAT SELURUH PERINGKAT &rarr;</a>
         </div>
     </div>
 

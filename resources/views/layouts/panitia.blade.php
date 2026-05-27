@@ -279,12 +279,17 @@
             <button class="btn-close-profile" onclick="toggleModalProfile(false)">&times;</button>
         </div>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('profile.update-foto') }}" method="POST" enctype="multipart/form-data">
+            @csrf
             <div class="profile-body">
-                <img id="previewGambar" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=792131&color=fff&size=120" alt="Preview" class="preview-avatar">
+                @if(Auth::user()->profile_photo)
+                    <img id="previewGambar" src="{{ asset('storage/' . Auth::user()->profile_photo) }}" alt="Preview" class="preview-avatar">
+                @else
+                    <img id="previewGambar" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=792131&color=fff&size=120" alt="Preview" class="preview-avatar">
+                @endif
                 
                 <div class="file-input-wrapper">
-                    <input type="file" name="foto" id="inputFoto" accept="image/png, image/jpeg, image/jpg" onchange="previewImage(event)">
+                    <input type="file" name="foto" id="inputFoto" accept="image/png, image/jpeg, image/jpg" onchange="previewImage(event)" required>
                 </div>
             </div>
 
@@ -385,15 +390,25 @@
                 <h1 class="topbar__title">@yield('page_title', 'Dashboard')</h1>
 
                 <div class="topbar__actions">
+                    @php
+                        $user = Auth::user();
+                        $cm = $user ? $user->committeeMembers->first() : null;
+                        $roleName = $cm && $cm->position ? strtoupper($cm->position) : 'PANITIA';
+                        $userName = $user ? $user->name : 'User';
+                    @endphp
 
                     <div class="user-profile" 
                     onclick="toggleModalProfile(true)" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                         <div class="user-profile__info">
-                            <!-- Placeholder nama (Nantinya bisa diganti Auth::user()->name) -->
-                            <span class="user-profile__name">Budi Darmawan</span>
-                            <span class="user-profile__role">Koordinator Divisi</span>
+                            <!-- Nama dan Role dari Auth -->
+                            <span class="user-profile__name">{{ $userName }}</span>
+                            <span class="user-profile__role">{{ $roleName }}</span>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Budi+Darmawan&background=792131&color=fff" alt="Avatar" class="user-profile__avatar">
+                        @if($user && $user->profile_photo)
+                            <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Avatar" class="user-profile__avatar" style="object-fit: cover;">
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($userName) }}&background=792131&color=fff" alt="Avatar" class="user-profile__avatar">
+                        @endif
                     </div>
                 </div>
             </header>

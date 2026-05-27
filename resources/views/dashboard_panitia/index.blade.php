@@ -187,16 +187,27 @@
             <p class="dp-desc">Ringkasan dan Proses Evaluasi Panitia</p>
         </div>
         
-        <button class="dp-filter-btn">
-            <div>
-                <span class="dp-filter-label">FILTER GLOBAL EVENT</span>
-                <div class="dp-filter-content">
-                    <svg width="16" height="16" fill="none" stroke="var(--primary-color)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    Grand Seminar IT 2026
+        <form method="GET" action="{{ route('dashboard.panitia') }}" id="formEventFilter">
+            <button type="button" class="dp-filter-btn" style="position: relative; overflow: hidden;">
+                <div style="text-align: left;">
+                    <span class="dp-filter-label">FILTER GLOBAL EVENT</span>
+                    <div class="dp-filter-content">
+                        <svg width="16" height="16" fill="none" stroke="var(--primary-color)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <select name="event_id" onchange="document.getElementById('formEventFilter').submit()" style="border:none; background:transparent; font-weight: 700; font-size: 0.9rem; color: var(--text-dark); cursor: pointer; outline: none; appearance: none; padding-right: 20px;">
+                            @foreach($myEvents ?? [] as $event)
+                                <option value="{{ $event->id }}" {{ ($selectedEventId ?? '') == $event->id ? 'selected' : '' }}>
+                                    {{ $event->name }}
+                                </option>
+                            @endforeach
+                            @if(($myEvents ?? collect())->isEmpty())
+                                <option value="">Belum ada Event</option>
+                            @endif
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
+                <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+        </form>
     </div>
 
     <div class="dp-kpi-grid">
@@ -267,33 +278,38 @@
             </div>
 
             @forelse($evaluationsToPerform as $eval)
+            @php
+                $existingEvaluation = $eval->evaluationsAsEvaluatee->first();
+            @endphp
             <div class="dp-list-row">
                 <div class="col-user">
-                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($eval->evaluatee->user->name ?? 'User'), 0, 6) }}">
-                        {{ strtoupper(substr($eval->evaluatee->user->name ?? 'U', 0, 2)) }}
+                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($eval->user->name ?? 'User'), 0, 6) }}">
+                        {{ strtoupper(substr($eval->user->name ?? 'U', 0, 2)) }}
                     </div>
                     <div>
-                        <div class="user-name">{{ $eval->evaluatee->user->name ?? 'N/A' }}</div>
-                        <div class="user-id">ID: PNT-{{ str_pad($eval->evaluatee->id ?? 0, 3, '0', STR_PAD_LEFT) }}</div>
+                        <div class="user-name">{{ $eval->user->name ?? 'N/A' }}</div>
+                        <div class="user-id">ID: PNT-{{ str_pad($eval->id ?? 0, 3, '0', STR_PAD_LEFT) }}</div>
                     </div>
                 </div>
-                <div class="col-div">{{ $eval->evaluatee->division->name ?? 'Belum ada Divisi' }}</div>
+                <div class="col-div">{{ $eval->division->name ?? 'Belum ada Divisi' }}</div>
                 <div>
-                    @if($eval->final_score)
+                    @if($existingEvaluation)
                         <span class="badge-status stat-done"><span class="dot"></span> Sudah Dinilai</span>
                     @else
                         <span class="badge-status stat-wait"><span class="dot"></span> Belum Dinilai</span>
                     @endif
                 </div>
                 <div class="col-score">
-                    @if($eval->final_score)
-                        {{ number_format($eval->final_score, 1) }} <svg class="icon-star" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    @if($existingEvaluation)
+                        {{ number_format($existingEvaluation->final_score, 1) }} <svg class="icon-star" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                     @else
                         <span style="color: var(--text-placeholder);">--</span>
                     @endif
                 </div>
                 <div>
-                    <button class="btn-eval" onclick="toggleModalEval('modalEvaluasi', true)">{{ $eval->final_score ? 'LIHAT' : 'EVALUASI' }}</button>
+                    <button class="btn-eval" onclick="openModalEval({{ $eval->id }}, '{{ $eval->user->name }}')" {{ $existingEvaluation ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : '' }}>
+                        {{ $existingEvaluation ? 'SELESAI' : 'EVALUASI' }}
+                    </button>
                 </div>
             </div>
             @empty
@@ -304,7 +320,7 @@
         <div class="dp-pagination">
             <div class="page-info">Menampilkan {{ $evaluationsToPerform->firstItem() ?? 0 }} sampai {{ $evaluationsToPerform->lastItem() ?? 0 }} dari {{ $evaluationsToPerform->total() }} tugas</div>
             <div class="page-nav">
-                {{ $evaluationsToPerform->links('pagination::simple-bootstrap-4') }}
+                {{ $evaluationsToPerform->appends(request()->query())->links('pagination::simple-bootstrap-4') }}
             </div>
         </div>
     </div>
@@ -414,77 +430,60 @@
 
 <div id="modalEvaluasi" class="modal-overlay">
     <div class="modal-eval-content">
-        
-        <div class="modal-header">
-            <h2 class="modal-title">Formulir Evaluasi Panitia</h2>
-            <p class="modal-subtitle">Berikan penilaian objektif berdasarkan kinerja panitia di lapangan.</p>
-            <button class="btn-close" onclick="toggleModalEval('modalEvaluasi', false)">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-
-        <div class="modal-body">
+        <form action="/evaluasi/store" method="POST" id="evalForm">
+            @csrf
+            <input type="hidden" name="evaluatee_id" id="evaluatee_id" value="">
             
-            <div id="evalAlert" class="alert-warning">
-                <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                <p class="alert-text">Beberapa bidang penilaian wajib diisi sebelum mengirimkan formulir.</p>
+            <div class="modal-header">
+                <h2 class="modal-title">Formulir Evaluasi: <span id="evalTargetName">Panitia</span></h2>
+                <p class="modal-subtitle">Berikan penilaian objektif berdasarkan kinerja panitia di lapangan.</p>
+                <button type="button" class="btn-close" onclick="toggleModalEval('modalEvaluasi', false)">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
 
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="rating-title">Kerja Sama (Cooperation)</span>
+            <div class="modal-body">
+                
+                @if(session('error'))
+                <div class="alert-warning" style="margin-bottom: 15px; background-color: #fef2f2; border-color: #fca5a5;">
+                    <p class="alert-text" style="color: #b91c1c;">{{ session('error') }}</p>
                 </div>
-                <div class="stars-container">
-                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                @endif
+                @if(session('success'))
+                <div class="alert-warning" style="margin-bottom: 15px; background-color: #f0fdf4; border-color: #bbf7d0;">
+                    <p class="alert-text" style="color: #15803d;">{{ session('success') }}</p>
                 </div>
-                <div class="rating-desc">Kemampuan berkoordinasi dengan anggota tim lainnya.</div>
+                @endif
+
+                @foreach($evaluationCriterias as $criteria)
+                <div class="rating-group">
+                    <div class="rating-header">
+                        <span class="rating-title">{{ $criteria->name }}</span>
+                    </div>
+                    <div class="stars-container" data-criteria-id="{{ $criteria->id }}">
+                        <!-- Hidden input to store rating for this criteria -->
+                        <input type="hidden" name="scores[{{ $criteria->id }}]" class="criteria-score-input" required>
+                        <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                </div>
+                @endforeach
+
+                <div class="form-group">
+                    <label class="form-label">Feedback/Komentar</label>
+                    <textarea class="form-textarea" name="feedback" placeholder="Tulis feedback untuk panitia..."></textarea>
+                </div>
+
             </div>
 
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="rating-title">Disiplin (Discipline)</span>
-                </div>
-                <div class="stars-container">
-                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                </div>
-                <div class="rating-desc">Ketepatan waktu dan kepatuhan terhadap protokol kepanitiaan.</div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="toggleModalEval('modalEvaluasi', false)">Batal</button>
+                <button type="submit" class="btn-primary" id="btnSubmitEval">Submit Penilaian</button>
             </div>
-
-            <div class="rating-group has-error">
-                <div class="rating-header">
-                    <span class="rating-title">Tanggung Jawab (Responsibility)</span>
-                    <span class="req-label">* Wajib</span>
-                </div>
-                <div class="stars-container">
-                    <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                </div>
-                <div class="rating-desc">Penyelesaian tugas yang diberikan sesuai target yang ditetapkan.</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Feedback/Komentar</label>
-                <textarea class="form-textarea" placeholder="Tulis feedback untuk panitia..."></textarea>
-            </div>
-
-        </div>
-
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="toggleModalEval('modalEvaluasi', false)">Batal</button>
-            <button class="btn-primary" onclick="toggleModalEval('modalEvaluasi', false)">Submit Penilaian</button>
-        </div>
-
+        </form>
     </div>
 </div>
 
@@ -499,12 +498,31 @@
         }
     }
 
+    function openModalEval(evaluateeId, evaluateeName) {
+        document.getElementById('evaluatee_id').value = evaluateeId;
+        document.getElementById('evalTargetName').innerText = evaluateeName;
+        
+        // Reset stars and inputs
+        const allStars = document.querySelectorAll('.star-btn');
+        allStars.forEach(s => s.classList.remove('filled'));
+        const allInputs = document.querySelectorAll('.criteria-score-input');
+        allInputs.forEach(i => i.value = '');
+
+        toggleModalEval('modalEvaluasi', true);
+    }
+
     // 2. Fungsi Interaktif Klik Bintang
     function setRating(clickedStar, ratingValue) {
         // Cari pembungkus bintang-bintang tersebut
         const container = clickedStar.closest('.stars-container');
         const stars = container.querySelectorAll('.star-btn');
         
+        // Simpan nilai ke input hidden
+        const inputField = container.querySelector('.criteria-score-input');
+        if (inputField) {
+            inputField.value = ratingValue;
+        }
+
         // Warnai bintang sesuai urutan yang diklik
         stars.forEach((star, index) => {
             if (index < ratingValue) {
