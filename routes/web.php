@@ -38,6 +38,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 
 /* DASHBOARD ADMIN */
 Route::get('/dashboard-admin', [AdminController::class, 'index'])->middleware('auth')->name('dashboard.admin');
+Route::post('/profile/update-foto', [\App\Http\Controllers\UserController::class, 'updatePhoto'])->middleware('auth')->name('profile.update-foto');
 
 /*Manajemen Event*/
 Route::get('/manajemen-event', [EventController::class, 'index'])->name('event.index');
@@ -79,6 +80,10 @@ Route::get('/dashboard-panitia', [\App\Http\Controllers\DashboardPanitiaControll
 
 /* Hasil Evaluasi Panitia */
 Route::get('/hasil-evaluasi-panitia', [PanitiaController::class, 'personalEvaluation'])->middleware('auth')->name('hasil-panitia.index');
+Route::get('/hasil-evaluasi-panitia/pdf', [PanitiaController::class, 'exportPdf'])->middleware('auth')->name('hasil-panitia.pdf');
+
+/* Proses Evaluasi Panitia */
+Route::post('/evaluasi/store', [\App\Http\Controllers\EvaluationController::class, 'store'])->middleware('auth')->name('evaluasi.store');
 
 //cek desain UI Panitia
 Route::get('/cek-desain-panitia', function () {

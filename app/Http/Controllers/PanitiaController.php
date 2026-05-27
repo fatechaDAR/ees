@@ -163,9 +163,12 @@ class PanitiaController extends Controller
                 'avgScore' => 0,
                 'rank' => '-',
                 'totalPanitia' => 0,
-                'evaluations' => collect()
+                'evaluations' => collect(),
+                'eventName' => 'Belum ada Event'
             ]);
         }
+
+        $eventName = $committeeMember->division && $committeeMember->division->event ? $committeeMember->division->event->name : 'Event';
 
         $avgScore = \App\Models\Evaluation::where('evaluatee_id', $committeeMember->id)->avg('final_score') ?? 0;
         $allRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
@@ -182,6 +185,40 @@ class PanitiaController extends Controller
             ->latest()
             ->get();
 
-        return view('hasil_evaluasi_panitia.index', compact('avgScore', 'rank', 'totalPanitia', 'evaluations'));
+        return view('hasil_evaluasi_panitia.index', compact('avgScore', 'rank', 'totalPanitia', 'evaluations', 'eventName'));
+    }
+
+    public function exportPdf()
+    {
+        $user = auth()->user();
+        $committeeMember = \App\Models\CommitteeMember::where('user_id', $user->id)->first();
+
+        if (!$committeeMember) {
+            $avgScore = 0;
+            $rank = '-';
+            $totalPanitia = 0;
+            $evaluations = collect();
+            $eventName = 'Belum ada Event';
+        } else {
+            $eventName = $committeeMember->division && $committeeMember->division->event ? $committeeMember->division->event->name : 'Event';
+
+            $avgScore = \App\Models\Evaluation::where('evaluatee_id', $committeeMember->id)->avg('final_score') ?? 0;
+            $allRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
+                ->groupBy('evaluatee_id')
+                ->orderByDesc('avg_score')
+                ->get();
+            
+            $rankIndex = $allRankings->search(fn($item) => $item->evaluatee_id == $committeeMember->id);
+            $rank = $rankIndex !== false ? $rankIndex + 1 : '-';
+            $totalPanitia = $allRankings->count();
+
+            $evaluations = \App\Models\Evaluation::where('evaluatee_id', $committeeMember->id)
+                ->with('evaluator')
+                ->latest()
+                ->get();
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('hasil_evaluasi_panitia.pdf', compact('avgScore', 'rank', 'totalPanitia', 'evaluations', 'eventName', 'user'));
+        return $pdf->download('Laporan_Evaluasi_' . str_replace(' ', '_', $user->name) . '.pdf');
     }
 }
