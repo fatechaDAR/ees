@@ -310,13 +310,6 @@
         </div>
     </div>
 
-    <div class="dm-helper-card" onclick="openAddModal()">
-        <div class="helper-icon">+</div>
-        <h3 class="helper-title">Butuh divisi tambahan?</h3>
-        <p class="helper-desc">Anda bisa menambahkan divisi baru untuk departemen event yang sedang aktif ini.</p>
-        <span class="helper-link">Tambah Divisi Baru &rarr;</span>
-    </div>
-
     <footer style="text-align: center; margin-top: 16px; font-size: 0.75rem; color: var(--text-placeholder); font-weight: 600;">
         &copy; 2026 SISTEM EVALUASI PANITIA EVENT KAMPUS
     </footer>
