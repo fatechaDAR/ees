@@ -8,6 +8,40 @@ use Illuminate\Http\Request;
 
 class PanitiaController extends Controller
 {
+    public function pilihEvent(Request $request)
+    {
+        $registeredUserId = session('registered_user_id');
+        if (!$registeredUserId) {
+            return redirect('/login');
+        }
+
+        $events = \App\Models\Event::with('divisions')->orderBy('created_at', 'desc')->get();
+        return view('pilih_event.index', compact('events'));
+    }
+
+    public function storePilihEvent(Request $request)
+    {
+        $registeredUserId = session('registered_user_id');
+        if (!$registeredUserId) {
+            return redirect('/login');
+        }
+
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'division_id' => 'required|exists:divisions,id',
+        ]);
+
+        \App\Models\CommitteeMember::create([
+            'user_id' => $registeredUserId,
+            'division_id' => $request->division_id,
+            'position' => 'anggota',
+        ]);
+
+        $request->session()->forget('registered_user_id');
+
+        return redirect('/login')->with('success', 'Berhasil memilih divisi. Silakan login.');
+    }
+
     public function index(Request $request)
     {
         // Mengambil semua event untuk dropdown

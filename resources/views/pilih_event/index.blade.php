@@ -172,29 +172,36 @@
         <h2 class="card-title">Pilih Event & Divisi</h2>
         <p class="card-instruksi">Pilih event dan divisi sebelum masuk ke dashboard evaluasi.</p>
 
-        <div class="form-group">
-            <label class="form-label">EVENT</label>
-            <select class="form-select">
-                <option value="" disabled selected>Pilih event yang akan dievaluasi</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
+        <form method="POST" action="{{ route('pilih-event.store') }}">
+            @csrf
+            
+            @if(session('warning'))
+                <div style="background-color: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; font-weight: 600; text-align: center;">
+                    {{ session('warning') }}
+                </div>
+            @endif
 
-        <div class="form-group">
-            <label class="form-label">DIVISI</label>
-            <select class="form-select">
-                <option value="" disabled selected>Pilih divisi tugas Anda</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label class="form-label">EVENT</label>
+                <select class="form-select" name="event_id" id="event_select" required>
+                    <option value="" disabled selected>Pilih event yang akan dievaluasi</option>
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}" data-divisions="{{ json_encode($event->divisions) }}">{{ $event->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-        <button class="btn-submit">
-            Masuk Dashboard Panitia &rarr;
-        </button>
+            <div class="form-group">
+                <label class="form-label">DIVISI</label>
+                <select class="form-select" name="division_id" id="division_select" required>
+                    <option value="" disabled selected>Pilih divisi tugas Anda</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Lanjut &rarr;
+            </button>
+        </form>
     </div>
 
     <div class="support-text">
@@ -206,3 +213,23 @@
     </footer>
 
 </div>
+
+<script>
+    document.getElementById('event_select').addEventListener('change', function() {
+        const divisionSelect = document.getElementById('division_select');
+        divisionSelect.innerHTML = '<option value="" disabled selected>Pilih divisi tugas Anda</option>';
+        
+        const selectedOption = this.options[this.selectedIndex];
+        const divisionsStr = selectedOption.getAttribute('data-divisions');
+        
+        if (divisionsStr) {
+            const divisions = JSON.parse(divisionsStr);
+            divisions.forEach(div => {
+                const option = document.createElement('option');
+                option.value = div.id;
+                option.textContent = div.name;
+                divisionSelect.appendChild(option);
+            });
+        }
+    });
+</script>
