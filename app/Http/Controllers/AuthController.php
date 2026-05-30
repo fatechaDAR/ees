@@ -23,8 +23,18 @@ class AuthController extends Controller
             $request->session()->regenerate();
             
             // Cek role pengguna dan arahkan ke dashboard yang sesuai
-            $role = Auth::user()->role;
+            $user = Auth::user();
+            $role = $user->role;
             if ($role === 'panitia') {
+                if ($user->committeeMembers()->count() == 0) {
+                    $userId = $user->id;
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    
+                    session(['registered_user_id' => $userId]);
+                    return redirect('/pilih-event')->with('warning', 'Anda belum melengkapi data divisi. Silakan pilih Event & Divisi terlebih dahulu.');
+                }
                 return redirect()->intended('dashboard-panitia');
             } elseif ($role === 'admin') {
                 return redirect()->intended('dashboard-admin');
@@ -64,7 +74,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Auth::login($user); // Dihapus atau dikomentari agar tidak otomatis login
+        if ($user->role === 'panitia') {
+            session(['registered_user_id' => $user->id]);
+            return redirect('/pilih-event');
+        }
 
         return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
     }

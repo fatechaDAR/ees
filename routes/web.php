@@ -131,7 +131,6 @@ Route::get('/cek-desain-panitia', function () {
     ]);
 });
 
-/* Pilih Event */
-Route::get('/ui-pilih-event', function () {
-    return view('pilih_event.index'); // 
-});
+/* Pilih Event (Setelah Register tapi sebelum Login) */
+Route::get('/pilih-event', [PanitiaController::class, 'pilihEvent'])->name('pilih-event.index');
+Route::post('/pilih-event', [PanitiaController::class, 'storePilihEvent'])->name('pilih-event.store');

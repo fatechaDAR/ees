@@ -279,9 +279,10 @@
             <button class="btn-close-profile" onclick="toggleModalProfile(false)">&times;</button>
         </div>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('profile.update-foto') }}" method="POST" enctype="multipart/form-data">
+            @csrf
             <div class="profile-body">
-                <img id="previewGambar" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=792131&color=fff&size=120" alt="Preview" class="preview-avatar">
+                <img id="previewGambar" src="{{ Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name ?? 'User') . '&background=792131&color=fff&size=120' }}" alt="Preview" class="preview-avatar">
                 
                 <div class="file-input-wrapper">
                     <input type="file" name="foto" id="inputFoto" accept="image/png, image/jpeg, image/jpg" onchange="previewImage(event)">
@@ -445,7 +446,7 @@
                             <span class="user-profile__name">{{ Auth::user()->name }}</span>
                             <span class="user-profile__role">{{ strtoupper(Auth::user()->role) }}</span>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=792131&color=fff" alt="Avatar" class="user-profile__avatar">
+                        <img src="{{ Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=792131&color=fff' }}" alt="Avatar" class="user-profile__avatar" style="object-fit: cover;">
                     </div>
                 </div>
             </header>
