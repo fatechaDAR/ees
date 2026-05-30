@@ -22,7 +22,23 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'profile_photo',
     ];
+
+    // Relasi User sebagai Panitia di sebuah divisi/event
+    public function committeeMembers()
+    {
+        return $this->hasMany(CommitteeMember::class);
+    }
+
+    // Relasi User jika bertindak sebagai Evaluator
+    public function evaluationsAsEvaluator()
+    {
+        return $this->hasMany(Evaluation::class, 'evaluator_id');
+    }
+
+
 
     /**
      * The attributes that should be hidden for serialization.
