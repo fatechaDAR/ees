@@ -142,45 +142,8 @@
 .toggle-password-btn:hover {
     color: var(--primary-color);
 }
-
-/*2 grid*/
-/* item yang harus full 2 kolom */
-.password-grid .full-width {
-  grid-column: 1 / -1;
-}
-
-/* checkbox biar rapi */
-.checkbox-group{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-/* tombol full */
-.btn-block{
-  width:100%;
-}
-
     </style>
 </head>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.toggle-password-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.dataset.target;
-      const input = document.getElementById(targetId);
-      if (!input) return;
-
-      const isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-
-      btn.setAttribute('aria-label', isHidden ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
-    });
-  });
-});
-</script>
-
 <body>
 
     <!-- NAVBAR -->

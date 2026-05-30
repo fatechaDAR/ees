@@ -13,16 +13,6 @@
 
         <form action="{{ route('register') }}" method="POST" class="register-form">
             @csrf
-
-            @if($errors->any())
-            <div style="background-color: #fee2e2; color: #dc2626; border: 1px solid #f87171; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
-                <ul style="margin-left: 20px;">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
             
             <!-- Input Nama Lengkap -->
             <div class="form-group">
@@ -68,14 +58,14 @@
                         </div>
                     </label>
 
-                    <!-- Opsi Admin -->
+                    <!-- Opsi Evaluator -->
                     <label class="role-option">
-                        <input type="radio" name="role" value="admin" class="sr-only" {{ old('role') == 'admin' ? 'checked' : '' }}>
+                        <input type="radio" name="role" value="evaluator" class="sr-only" {{ old('role') == 'evaluator' ? 'checked' : '' }}>
                         <div class="role-card-ui">
                             <span class="role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
                             </span>
-                            <span class="role-text">Admin</span>
+                            <span class="role-text">Evaluator</span>
                         </div>
                     </label>
                 </div>
@@ -83,32 +73,20 @@
 
             <!-- Input Kata Sandi & Konfirmasi (Grid 2 Kolom) -->
             <div class="password-grid">
-
+                
                 <!-- Kata Sandi -->
                 <div class="form-group">
                     <label for="password" class="form-label">Kata Sandi</label>
                     <div class="input-wrapper">
                         <span class="input-icon left-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </span>
-
-                        <input type="password" id="password" name="password" class="form-input"
-                            placeholder="Minimal 8 karakter" autocomplete="new-password" required>
-
+                        <input type="password" id="password" name="password" class="form-input" 
+                               placeholder="Minimal 8 karakter" 
+                               autocomplete="new-password" required>
                         <!-- Tombol toggle mata -->
-                        <button type="button"
-                            class="input-icon right-icon toggle-password-btn"
-                            data-target="password"
-                            aria-label="Tampilkan kata sandi">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
+                        <button type="button" class="input-icon right-icon toggle-password-btn" aria-label="Tampilkan kata sandi">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
                     </div>
                 </div>
@@ -118,31 +96,16 @@
                     <label for="password_confirmation" class="form-label">Konfirmasi Sandi</label>
                     <div class="input-wrapper">
                         <span class="input-icon left-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </span>
-
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input"
-                            placeholder="Ulangi kata sandi" autocomplete="new-password" required>
-
-                        <!-- Tombol toggle mata -->
-                        <button type="button"
-                            class="input-icon right-icon toggle-password-btn"
-                            data-target="password_confirmation"
-                            aria-label="Tampilkan konfirmasi kata sandi">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" 
+                               placeholder="Ulangi kata sandi" 
+                               autocomplete="new-password" required>
                     </div>
                 </div>
 
             </div>
+
             <!-- Tombol Submit -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary btn-block">Daftar Sekarang</button>
