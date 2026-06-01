@@ -241,12 +241,7 @@
 
         <div class="rank-list-wrapper">
             @php
-                $topRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
-                    ->groupBy('evaluatee_id')
-                    ->with('evaluatee.user')
-                    ->orderByDesc('avg_score')
-                    ->limit(5)
-                    ->get();
+                // $topRankings dipassing dari PanitiaController
             @endphp
 
             @foreach($topRankings as $index => $tr)

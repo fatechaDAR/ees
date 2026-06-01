@@ -10,7 +10,10 @@ class AnomalyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Evaluation::query();
+        $adminId = auth()->id();
+        $query = Evaluation::whereHas('event', function ($q) use ($adminId) {
+            $q->where('admin_id', $adminId);
+        });
 
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
@@ -44,7 +47,7 @@ class AnomalyController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $events = Event::all();
+        $events = Event::where('admin_id', $adminId)->get();
 
         return view('deteksi_anomali.index', compact('anomalies', 'totalAnomalies', 'avgDeviation', 'accuracy', 'events', 'isAnomalyFiltered'));
     }
