@@ -11,7 +11,11 @@ class ResultController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Evaluation::whereNotNull('final_score');
+        $adminId = auth()->id();
+        $query = Evaluation::whereNotNull('final_score')
+            ->whereHas('event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            });
 
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
@@ -21,7 +25,10 @@ class ResultController extends Controller
         $avgScoreQuery = clone $query;
         $avgScoreGlobal = $avgScoreQuery->avg('final_score') ?? 0;
         
-        $totalPanitia = User::where('role', 'panitia')->count();
+        $totalPanitia = User::where('role', 'panitia')
+            ->whereHas('committeeMembers.division.event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            })->count();
         
         $sangatBaikQuery = clone $query;
         $totalSangatBaik = $sangatBaikQuery->where('final_score', '>=', 4.0)->count();
@@ -30,7 +37,7 @@ class ResultController extends Controller
         $persentaseSangatBaik = $totalEvaluasi > 0 ? round(($totalSangatBaik / $totalEvaluasi) * 100) : 0;
 
         // Data untuk Filter
-        $events = Event::all();
+        $events = Event::where('admin_id', $adminId)->get();
 
         // Daftar Hasil Evaluasi
         $results = $query->with(['event', 'evaluator', 'evaluatee.user', 'evaluatee.division'])
@@ -49,7 +56,11 @@ class ResultController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $query = Evaluation::whereNotNull('final_score');
+        $adminId = auth()->id();
+        $query = Evaluation::whereNotNull('final_score')
+            ->whereHas('event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            });
 
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);

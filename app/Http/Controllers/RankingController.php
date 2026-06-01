@@ -10,8 +10,13 @@ class RankingController extends Controller
 {
     public function index()
     {
-        // Ranking Panitia (Global)
+        $adminId = auth()->id();
+        
+        // Ranking Panitia (Global for this admin's events)
         $rankings = Evaluation::with(['evaluatee.user', 'evaluatee.division'])
+            ->whereHas('event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            })
             ->whereNotNull('final_score')
             ->select('evaluatee_id')
             ->selectRaw('AVG(final_score) as avg_score')
@@ -21,6 +26,9 @@ class RankingController extends Controller
 
         // Top 3 untuk Podium
         $top3 = Evaluation::with(['evaluatee.user', 'evaluatee.division'])
+            ->whereHas('event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            })
             ->whereNotNull('final_score')
             ->select('evaluatee_id')
             ->selectRaw('AVG(final_score) as avg_score')
@@ -32,6 +40,8 @@ class RankingController extends Controller
         // Ranking Divisi (untuk insight)
         $divisionRankings = Evaluation::join('committee_members', 'evaluations.evaluatee_id', '=', 'committee_members.id')
             ->join('divisions', 'committee_members.division_id', '=', 'divisions.id')
+            ->join('events', 'divisions.event_id', '=', 'events.id')
+            ->where('events.admin_id', $adminId)
             ->whereNotNull('evaluations.final_score')
             ->select('divisions.name')
             ->selectRaw('AVG(evaluations.final_score) as avg_score')
@@ -42,7 +52,9 @@ class RankingController extends Controller
         $topDivision = $divisionRankings->first();
         
         // Kalkulasi Growth (Membandingkan rata-rata event terbaru vs sebelumnya)
-        $eventIds = Evaluation::distinct()->pluck('event_id')->sortDesc()->values();
+        $eventIds = Evaluation::whereHas('event', function($q) use ($adminId) {
+            $q->where('admin_id', $adminId);
+        })->distinct()->pluck('event_id')->sortDesc()->values();
         $avgGrowth = "0%";
         if ($eventIds->count() >= 2) {
             $currentAvg = Evaluation::where('event_id', $eventIds[0])->whereNotNull('final_score')->avg('final_score') ?? 0;
@@ -61,7 +73,11 @@ class RankingController extends Controller
 
     public function exportCsv()
     {
+        $adminId = auth()->id();
         $rankings = Evaluation::with(['evaluatee.user', 'evaluatee.division'])
+            ->whereHas('event', function ($q) use ($adminId) {
+                $q->where('admin_id', $adminId);
+            })
             ->whereNotNull('final_score')
             ->select('evaluatee_id')
             ->selectRaw('AVG(final_score) as avg_score')

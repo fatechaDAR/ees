@@ -11,7 +11,10 @@ class MonitoringController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Evaluation::query();
+        $adminId = auth()->id();
+        $query = Evaluation::whereHas('event', function ($q) use ($adminId) {
+            $q->where('admin_id', $adminId);
+        });
 
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
@@ -32,8 +35,10 @@ class MonitoringController extends Controller
         $pendingEvaluations = $pendingQuery->whereNull('final_score')->count();
 
         // Data untuk Filter
-        $events = Event::all();
-        $divisions = Division::all();
+        $events = Event::where('admin_id', $adminId)->get();
+        $divisions = Division::whereHas('event', function ($q) use ($adminId) {
+            $q->where('admin_id', $adminId);
+        })->get();
 
         // Daftar Evaluasi
         $evaluations = $query->with(['event', 'evaluator', 'evaluatee.user', 'evaluatee.division'])

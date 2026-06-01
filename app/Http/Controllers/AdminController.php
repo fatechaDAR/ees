@@ -11,18 +11,23 @@ class AdminController extends Controller
 {
     public function index()
     {
+        $adminId = auth()->id();
+        $evaluationQuery = Evaluation::whereHas('event', function ($q) use ($adminId) {
+            $q->where('admin_id', $adminId);
+        });
+
         // Data untuk KPI Cards
-        $totalEvaluasi = Evaluation::count();
+        $totalEvaluasi = (clone $evaluationQuery)->count();
         
         // Rata-rata Skor Keseluruhan
-        $avgScore = Evaluation::avg('final_score') ?? 0;
+        $avgScore = (clone $evaluationQuery)->avg('final_score') ?? 0;
         
         // Progress penilaian
-        $completedEvaluations = Evaluation::whereNotNull('final_score')->count();
+        $completedEvaluations = (clone $evaluationQuery)->whereNotNull('final_score')->count();
         $progress = $totalEvaluasi > 0 ? round(($completedEvaluations / $totalEvaluasi) * 100) : 0;
 
         // Data untuk Ranking (Top 3)
-        $topPanitia = Evaluation::with(['evaluatee.user', 'evaluatee.division'])
+        $topPanitia = (clone $evaluationQuery)->with(['evaluatee.user', 'evaluatee.division'])
             ->select('evaluatee_id')
             ->selectRaw('AVG(final_score) as avg_score')
             ->groupBy('evaluatee_id')
@@ -31,7 +36,7 @@ class AdminController extends Controller
             ->get();
 
         // Data untuk Bar Chart: Rata-rata per Event (Top 5 Event Terbaru)
-        $eventScores = Evaluation::with('event')
+        $eventScores = (clone $evaluationQuery)->with('event')
             ->select('event_id')
             ->selectRaw('AVG(final_score) as avg_score')
             ->groupBy('event_id')
@@ -40,10 +45,10 @@ class AdminController extends Controller
             ->get();
 
         // Data untuk Donut Chart: Distribusi Kategori Nilai
-        $sangatBaik = Evaluation::where('final_score', '>=', 4.0)->count();
-        $baik = Evaluation::where('final_score', '>=', 3.0)->where('final_score', '<', 4.0)->count();
-        $cukup = Evaluation::where('final_score', '>=', 2.0)->where('final_score', '<', 3.0)->count();
-        $kurang = Evaluation::where('final_score', '<', 2.0)->whereNotNull('final_score')->count();
+        $sangatBaik = (clone $evaluationQuery)->where('final_score', '>=', 4.0)->count();
+        $baik = (clone $evaluationQuery)->where('final_score', '>=', 3.0)->where('final_score', '<', 4.0)->count();
+        $cukup = (clone $evaluationQuery)->where('final_score', '>=', 2.0)->where('final_score', '<', 3.0)->count();
+        $kurang = (clone $evaluationQuery)->where('final_score', '<', 2.0)->whereNotNull('final_score')->count();
 
         // Menghitung persentase
         $distribusi = [

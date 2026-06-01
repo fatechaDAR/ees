@@ -44,8 +44,8 @@ class PanitiaController extends Controller
 
     public function index(Request $request)
     {
-        // Mengambil semua event untuk dropdown
-        $events = \App\Models\Event::orderBy('created_at', 'desc')->get();
+        // Mengambil semua event untuk dropdown (hanya event milik admin)
+        $events = \App\Models\Event::where('admin_id', auth()->id())->orderBy('created_at', 'desc')->get();
 
         $selectedEventId = $request->input('event_id');
         if (!$selectedEventId && $events->isNotEmpty()) {
@@ -82,6 +82,10 @@ class PanitiaController extends Controller
             $query->whereHas('committeeMembers.division', function($q) use ($selectedEventId) {
                 $q->where('event_id', $selectedEventId);
             });
+        } else {
+            $query->whereHas('committeeMembers.division.event', function($q) {
+                $q->where('admin_id', auth()->id());
+            });
         }
 
         // Filter pencarian nama
@@ -104,7 +108,11 @@ class PanitiaController extends Controller
                 })->with('division');
             }]);
         } else {
-            $query->with('committeeMembers.division');
+            $query->with(['committeeMembers' => function($q) {
+                $q->whereHas('division.event', function($divQ) {
+                    $divQ->where('admin_id', auth()->id());
+                })->with('division');
+            }]);
         }
 
         $panitiaList = $query->latest()
@@ -133,6 +141,10 @@ class PanitiaController extends Controller
             $query->whereHas('committeeMembers.division', function($q) use ($selectedEventId) {
                 $q->where('event_id', $selectedEventId);
             });
+        } else {
+            $query->whereHas('committeeMembers.division.event', function($q) {
+                $q->where('admin_id', auth()->id());
+            });
         }
 
         if ($request->filled('search')) {
@@ -152,7 +164,11 @@ class PanitiaController extends Controller
                 })->with('division');
             }]);
         } else {
-            $query->with('committeeMembers.division');
+            $query->with(['committeeMembers' => function($q) {
+                $q->whereHas('division.event', function($divQ) {
+                    $divQ->where('admin_id', auth()->id());
+                })->with('division');
+            }]);
         }
 
         $list = $query->get();
@@ -190,7 +206,8 @@ class PanitiaController extends Controller
     public function personalEvaluation()
     {
         $user = auth()->user();
-        $committeeMember = \App\Models\CommitteeMember::where('user_id', $user->id)->first();
+        // Dapatkan keanggotaan aktif terakhir (bisa juga ambil dari session jika ada)
+        $committeeMember = \App\Models\CommitteeMember::where('user_id', $user->id)->latest()->first();
 
         if (!$committeeMember) {
             return view('hasil_evaluasi_panitia.index', [
@@ -198,17 +215,26 @@ class PanitiaController extends Controller
                 'rank' => '-',
                 'totalPanitia' => 0,
                 'evaluations' => collect(),
-                'eventName' => 'Belum ada Event'
+                'eventName' => 'Belum ada Event',
+                'topRankings' => collect()
             ]);
         }
 
         $eventName = $committeeMember->division && $committeeMember->division->event ? $committeeMember->division->event->name : 'Event';
+        $eventId = $committeeMember->division->event_id ?? null;
 
         $avgScore = \App\Models\Evaluation::where('evaluatee_id', $committeeMember->id)->avg('final_score') ?? 0;
-        $allRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
+        
+        // Scope ranking hanya untuk event ini
+        $allRankingsQuery = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
             ->groupBy('evaluatee_id')
-            ->orderByDesc('avg_score')
-            ->get();
+            ->orderByDesc('avg_score');
+            
+        if ($eventId) {
+            $allRankingsQuery->where('event_id', $eventId);
+        }
+        
+        $allRankings = $allRankingsQuery->get();
         
         $rankIndex = $allRankings->search(fn($item) => $item->evaluatee_id == $committeeMember->id);
         $rank = $rankIndex !== false ? $rankIndex + 1 : '-';
@@ -218,8 +244,10 @@ class PanitiaController extends Controller
             ->with('evaluator')
             ->latest()
             ->get();
+            
+        $topRankings = $allRankings->take(5)->load('evaluatee.user', 'evaluatee.division');
 
-        return view('hasil_evaluasi_panitia.index', compact('avgScore', 'rank', 'totalPanitia', 'evaluations', 'eventName'));
+        return view('hasil_evaluasi_panitia.index', compact('avgScore', 'rank', 'totalPanitia', 'evaluations', 'eventName', 'topRankings'));
     }
 
     public function exportPdf()
@@ -235,12 +263,19 @@ class PanitiaController extends Controller
             $eventName = 'Belum ada Event';
         } else {
             $eventName = $committeeMember->division && $committeeMember->division->event ? $committeeMember->division->event->name : 'Event';
+            $eventId = $committeeMember->division->event_id ?? null;
 
             $avgScore = \App\Models\Evaluation::where('evaluatee_id', $committeeMember->id)->avg('final_score') ?? 0;
-            $allRankings = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
+            
+            $allRankingsQuery = \App\Models\Evaluation::selectRaw('evaluatee_id, AVG(final_score) as avg_score')
                 ->groupBy('evaluatee_id')
-                ->orderByDesc('avg_score')
-                ->get();
+                ->orderByDesc('avg_score');
+                
+            if ($eventId) {
+                $allRankingsQuery->where('event_id', $eventId);
+            }
+            
+            $allRankings = $allRankingsQuery->get();
             
             $rankIndex = $allRankings->search(fn($item) => $item->evaluatee_id == $committeeMember->id);
             $rank = $rankIndex !== false ? $rankIndex + 1 : '-';

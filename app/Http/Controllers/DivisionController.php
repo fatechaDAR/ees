@@ -11,7 +11,7 @@ class DivisionController extends Controller
 {
     public function index(Request $request)
     {
-        $events = \App\Models\Event::orderBy('created_at', 'desc')->get();
+        $events = \App\Models\Event::where('admin_id', auth()->id())->orderBy('created_at', 'desc')->get();
 
         $selectedEventId = $request->input('event_id');
         if (!$selectedEventId && $events->isNotEmpty()) {

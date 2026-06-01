@@ -62,4 +62,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the events created by this admin.
+     */
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'admin_id');
+    }
 }

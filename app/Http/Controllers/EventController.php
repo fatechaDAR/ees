@@ -11,12 +11,14 @@ class EventController extends Controller
     public function index(Request $request)
     {
         // Data KPI
-        $activeEvents = Event::where('status', 'active')->count();
-        $completedEvents = Event::where('status', 'completed')->count();
-        $avgRating = Evaluation::avg('final_score') ?? 0;
+        $activeEvents = Event::where('admin_id', auth()->id())->where('status', 'active')->count();
+        $completedEvents = Event::where('admin_id', auth()->id())->where('status', 'completed')->count();
+        $avgRating = Evaluation::whereHas('event', function ($q) {
+            $q->where('admin_id', auth()->id());
+        })->avg('final_score') ?? 0;
 
         // Daftar Event dengan filter
-        $query = Event::latest();
+        $query = Event::where('admin_id', auth()->id())->latest();
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -51,6 +53,7 @@ class EventController extends Controller
             'end_date' => $validated['date'] ?? null,
             'description' => $validated['description'] ?? null,
             'status' => $validated['status'],
+            'admin_id' => auth()->id(),
         ]);
 
         return redirect()->route('event.index')->with('success', 'Event berhasil ditambahkan.');
@@ -88,7 +91,7 @@ class EventController extends Controller
      */
     public function export(Request $request)
     {
-        $query = Event::latest();
+        $query = Event::where('admin_id', auth()->id())->latest();
 
         // Ikut serta filter yang aktif (kalau ada)
         if ($request->filled('search')) {
