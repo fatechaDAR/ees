@@ -71,7 +71,7 @@
                 <!-- Remember me (DI BAWAH, FULL) -->
                 <div class="form-group checkbox-group full-width">
                     <input type="checkbox" name="remember" id="remember">
-                    <label for="remember">Ingat udah saya</label>
+                    <label for="remember">Ingat saya</label>
                 </div>
 
                 <!-- Tombol Masuk (FULL) -->
