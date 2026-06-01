@@ -130,10 +130,7 @@
         width: 36px; height: 36px; border-radius: 50%; color: white;
         display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem;
     }
-    .ava-am { background-color: #3b82f6; }
-    .ava-sp { background-color: #ec4899; }
-    .ava-rk { background-color: #f59e0b; }
-
+    
     .user-name { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 2px; }
     .user-id { font-size: 0.75rem; color: var(--text-muted); }
     .col-div { font-size: 0.9rem; font-weight: 600; color: var(--text-dark); }
@@ -283,7 +280,7 @@
             @endphp
             <div class="dp-list-row">
                 <div class="col-user">
-                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($eval->user->name ?? 'User'), 0, 6) }}">
+                    <div class="user-avatar" style="background-color: {{ '#' . substr(md5($eval->user->name ?? 'User'), 0, 6) }}; width: 36px; height: 36px; border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem;">
                         {{ strtoupper(substr($eval->user->name ?? 'U', 0, 2)) }}
                     </div>
                     <div>
@@ -367,10 +364,14 @@
 
     /* --- Body (Scrollable) --- */
     .modal-body {
-        padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
+        padding: 24px; /* Ini kunci untuk membuatnya bisa di-scroll */
+        max-height: 60vh; /* Membatasi tinggi maksimal isi modal (60% dari tinggi layar) */
+        overflow-y: auto; /* Memunculkan scrollbar vertikal JIKA isinya kepanjangan */
+        
+        display: flex; flex-direction: column; gap: 24px;
     }
 
-    /* Alert Box Warning */
+    /* Alert Box Warning (Tampilan Front-End) */
     .alert-warning {
         background-color: #fdf2f8; border: 1px solid #fbcfe8; border-radius: var(--radius-md);
         padding: 12px 16px; display: flex; gap: 12px; align-items: center; transition: 0.3s;
@@ -430,7 +431,7 @@
 
 <div id="modalEvaluasi" class="modal-overlay">
     <div class="modal-eval-content">
-        <form action="/evaluasi/store" method="POST" id="evalForm">
+        <form action="/evaluasi/store" method="POST" id="evalForm" onsubmit="return validateEvalForm(event)">
             @csrf
             <input type="hidden" name="evaluatee_id" id="evaluatee_id" value="">
             
@@ -455,28 +456,68 @@
                 </div>
                 @endif
 
-                @foreach($evaluationCriterias as $criteria)
+                <div id="evalAlert" class="alert-warning" style="display: none;">
+                    <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    <p class="alert-text">Beberapa bidang penilaian wajib diisi sebelum mengirimkan formulir.</p>
+                </div>
+
+                <!-- Modul Pop up bintang dengan 3 kriteria pasti -->
+                <!-- Kriteria 1: Kerja Sama -->
                 <div class="rating-group">
                     <div class="rating-header">
-                        <span class="rating-title">{{ $criteria->name }}</span>
+                        <span class="rating-title">Kerja Sama (Cooperation)</span>
+                        <span class="req-label">* Wajib</span>
                     </div>
-                    <div class="stars-container" data-criteria-id="{{ $criteria->id }}">
-                        <!-- Hidden input to store rating for this criteria -->
-                        <input type="hidden" name="scores[{{ $criteria->id }}]" class="criteria-score-input" required>
+                    <div class="stars-container">
+                        <!-- Perhatikan name="scores[kerja_sama]" agar mudah dibaca Backend -->
+                        <input type="hidden" name="scores[kerja_sama]" class="criteria-score-input">
                         <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                         <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                     </div>
+                    <div class="rating-desc">Kemampuan berkoordinasi dengan anggota tim lainnya.</div>
                 </div>
-                @endforeach
 
+                <!-- Kriteria 2: Disiplin -->
+                <div class="rating-group">
+                    <div class="rating-header">
+                        <span class="rating-title">Disiplin (Discipline)</span>
+                        <span class="req-label">* Wajib</span>
+                    </div>
+                    <div class="stars-container">
+                        <input type="hidden" name="scores[disiplin]" class="criteria-score-input">
+                        <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <div class="rating-desc">Ketepatan waktu dan kepatuhan terhadap protokol kepanitiaan.</div>
+                </div>
+
+                <!-- Kriteria 3: Tanggung Jawab -->
+                <div class="rating-group">
+                    <div class="rating-header">
+                        <span class="rating-title">Tanggung Jawab (Responsibility)</span>
+                        <span class="req-label">* Wajib</span>
+                    </div>
+                    <div class="stars-container">
+                        <input type="hidden" name="scores[tanggung_jawab]" class="criteria-score-input">
+                        <svg class="star-btn" onclick="setRating(this, 1)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 2)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 3)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 4)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="star-btn" onclick="setRating(this, 5)" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <div class="rating-desc">Penyelesaian tugas yang diberikan sesuai target yang ditetapkan.</div>
+                </div>
+                <!-- Sampai sini untuk modul pop up bintang-->
                 <div class="form-group">
                     <label class="form-label">Feedback/Komentar</label>
                     <textarea class="form-textarea" name="feedback" placeholder="Tulis feedback untuk panitia..."></textarea>
                 </div>
-
             </div>
 
             <div class="modal-footer">
@@ -508,6 +549,12 @@
         const allInputs = document.querySelectorAll('.criteria-score-input');
         allInputs.forEach(i => i.value = '');
 
+        // PENTING: Bersihkan semua pesan error/warna merah sisa dari pengisian sebelumnya
+        const allGroups = document.querySelectorAll('.rating-group');
+        allGroups.forEach(g => g.classList.remove('has-error'));
+        const alertBox = document.getElementById('evalAlert');
+        if(alertBox) alertBox.style.display = 'none';
+
         toggleModalEval('modalEvaluasi', true);
     }
 
@@ -532,16 +579,48 @@
             }
         });
 
-        // Hapus background merah (error state) pada kriteria ini
+        // Hapus background merah (error state) pada kriteria ini secara instan
         const group = clickedStar.closest('.rating-group');
         group.classList.remove('has-error');
 
         // Sembunyikan Alert Box di atas jika sudah tidak ada error
         const alertBox = document.getElementById('evalAlert');
-        if(alertBox) {
+        if(alertBox && alertBox.style.display !== 'none') {
             alertBox.style.opacity = '0';
             setTimeout(() => { alertBox.style.display = 'none'; }, 300);
         }
     }
+
+    // 3. FUNGSI BARU: Validasi Client-Side (Mencegah submit jika bintang kosong)
+    function validateEvalForm(event) {
+        let isValid = true;
+        const allInputs = document.querySelectorAll('.criteria-score-input');
+
+        // Cek satu-satu apakah ada kriteria yang belum diberi nilai
+        allInputs.forEach(input => {
+            if (!input.value) {
+                isValid = false;
+                const group = input.closest('.rating-group');
+                group.classList.add('has-error'); // Nyalakan warna merah
+            }
+        });
+
+        // Jika ada yang kosong, cegat form dan munculkan alert
+        if (!isValid) {
+            event.preventDefault(); // Hentikan pengiriman data ke Backend
+            
+            const alertBox = document.getElementById('evalAlert');
+            alertBox.style.display = 'flex';
+            
+            // Animasi kemunculan yang halus
+            setTimeout(() => { alertBox.style.opacity = '1'; }, 10);
+            
+            // Otomatis scroll ke bagian atas modal agar peringatan terlihat
+            document.querySelector('.modal-body').scrollTop = 0;
+            return false;
+        }
+        
+        return true;
+    }
 </script>
-    @endsection
+@endsection
